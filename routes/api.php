@@ -49,13 +49,15 @@ Route::prefix('v1')->group(function () {
         Route::put('/profile', [ProfileController::class, 'update']);
         Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
         
-        // Cart Routes
-        Route::get('/cart', [CartController::class, 'index']);
-        Route::post('/cart/add', [CartController::class, 'add']);
-        Route::put('/cart/update', [CartController::class, 'update']);
-        Route::delete('/cart/remove/{productId}', [CartController::class, 'remove']);
-        Route::delete('/cart/clear', [CartController::class, 'clear']);
-        Route::get('/cart/count', [CartController::class, 'count']);
+        // Cart Routes (session-backed; enable session for API requests)
+        Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->group(function () {
+            Route::get('/cart', [CartController::class, 'index']);
+            Route::post('/cart/add', [CartController::class, 'add']);
+            Route::put('/cart/update', [CartController::class, 'update']);
+            Route::delete('/cart/remove/{productId}', [CartController::class, 'remove']);
+            Route::delete('/cart/clear', [CartController::class, 'clear']);
+            Route::get('/cart/count', [CartController::class, 'count']);
+        });
         
         // Wishlist Routes
         Route::get('/wishlist', [WishlistController::class, 'index']);
