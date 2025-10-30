@@ -30,8 +30,9 @@ Route::prefix('v1')->group(function () {
     // Public Product Routes
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/search', [ProductController::class, 'search']);
-    Route::get('/products/{product}', [ProductController::class, 'show']);
+    // Define static route before dynamic route to avoid model binding issues
     Route::get('/products/featured', [ProductController::class, 'featured']);
+    Route::get('/products/{product}', [ProductController::class, 'show']);
     
     // Public Category Routes
     Route::get('/categories', [CategoryController::class, 'index']);
