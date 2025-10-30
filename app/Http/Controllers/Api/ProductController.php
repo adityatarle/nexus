@@ -188,6 +188,13 @@ class ProductController extends Controller
             ? ($product->dealer_price ?? $product->price) 
             : $product->price;
         
+        // Ensure gallery images is an array (handle JSON string from DB)
+        $galleryImages = $product->gallery_images ?? [];
+        if (is_string($galleryImages)) {
+            $decodedGallery = json_decode($galleryImages, true);
+            $galleryImages = is_array($decodedGallery) ? $decodedGallery : [];
+        }
+
         return [
             'id' => $product->id,
             'name' => $product->name,
@@ -207,7 +214,7 @@ class ProductController extends Controller
             'image' => $image ? asset('storage/' . $image) : asset('assets/organic/images/product-thumb-1.png'),
             'images' => array_map(function($img) {
                 return asset('storage/' . $img);
-            }, $product->gallery_images ?? []),
+            }, $galleryImages),
             'brand' => $product->brand,
             'model' => $product->model,
             'power_source' => $product->power_source,
