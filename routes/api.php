@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\DealerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +77,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/notifications', [ProfileController::class, 'notifications']);
         Route::post('/notifications/{id}/read', [ProfileController::class, 'markAsRead']);
         Route::post('/notifications/read-all', [ProfileController::class, 'markAllAsRead']);
+        
+        // Dealer Routes
+        Route::get('/dealer/status', [DealerController::class, 'status']);
+        Route::post('/dealer/register', [DealerController::class, 'register']);
     });
 });
 

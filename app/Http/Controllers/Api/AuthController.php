@@ -172,10 +172,34 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
+        $user = $request->user();
+        $userData = $user->makeHidden(['password', 'remember_token'])->toArray();
+        
+        // Add dealer-specific information
+        $userData['is_dealer'] = $user->isDealer();
+        $userData['is_approved_dealer'] = $user->isApprovedDealer();
+        $userData['can_access_dealer_pricing'] = $user->canAccessDealerPricing();
+        
+        // Add dealer registration status if dealer
+        if ($user->isDealer() && $user->dealerRegistration) {
+            $userData['dealer_registration'] = [
+                'status' => $user->dealerRegistration->status,
+                'is_approved' => $user->dealerRegistration->isApproved(),
+                'is_pending' => $user->dealerRegistration->isPending(),
+                'reviewed_at' => $user->dealerRegistration->reviewed_at?->toISOString(),
+            ];
+        } elseif ($user->isDealer()) {
+            $userData['dealer_registration'] = [
+                'status' => 'not_submitted',
+                'is_approved' => false,
+                'is_pending' => false,
+            ];
+        }
+        
         return response()->json([
             'success' => true,
             'data' => [
-                'user' => $request->user()->makeHidden(['password', 'remember_token']),
+                'user' => $userData,
             ]
         ]);
     }
