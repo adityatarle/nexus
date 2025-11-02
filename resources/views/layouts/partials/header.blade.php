@@ -371,9 +371,25 @@
           <div class="col-sm-6 col-md-3 col-lg-2 d-flex align-items-center justify-content-end">
             <ul class="d-flex align-items-center list-unstyled m-0 gap-2">
               <li>
-                <a href="{{ route('admin.login') }}" class="p-2" title="Admin Dashboard">
-                  <svg width="24" height="24"><use xlink:href="#user"></use></svg>
-                </a>
+                @auth
+                  @if(auth()->user()->isAdmin())
+                    <a href="{{ route('admin.dashboard') }}" class="p-2" title="Admin Dashboard">
+                      <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                    </a>
+                  @elseif(auth()->user()->isDealer())
+                    <a href="{{ route('dealer.dashboard') }}" class="p-2" title="Dealer Dashboard">
+                      <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                    </a>
+                  @else
+                    <a href="{{ route('customer.profile') }}" class="p-2" title="My Profile">
+                      <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                    </a>
+                  @endif
+                @else
+                  <a href="{{ route('auth.login') }}" class="p-2" title="Login">
+                    <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                  </a>
+                @endauth
               </li>
               <li class="position-relative">
                 <a href="{{ auth()->check() ? route('agriculture.wishlist.index') : route('auth.login') }}" class="p-2">

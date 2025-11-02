@@ -40,21 +40,24 @@ class DealerController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
+            // Required fields (as per user requirements)
+            'name' => 'required|string|max:255',  // Contact person name
+            'email' => 'required|email|max:255',  // Contact email
             'business_name' => 'required|string|max:255',
             'gst_number' => 'required|string|unique:dealer_registrations,gst_number',
-            'pan_number' => 'required|string|max:20',
             'business_address' => 'required|string',
-            'business_city' => 'required|string|max:100',
-            'business_state' => 'required|string|max:100',
-            'business_pincode' => 'required|string|max:10',
-            'business_country' => 'nullable|string|max:100',
-            'contact_person' => 'required|string|max:255',
-            'contact_email' => 'required|email|max:255',
-            'contact_phone' => 'required|string|max:20',
-            'alternate_phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
             'company_website' => 'nullable|url|max:255',
             'business_description' => 'required|string',
-            'business_type' => 'required|in:Individual,Partnership,Private Limited,Public Limited,LLP,Other',
+            
+            // Optional fields (keep for backward compatibility and admin use)
+            'pan_number' => 'nullable|string|max:20',
+            'business_city' => 'nullable|string|max:100',
+            'business_state' => 'nullable|string|max:100',
+            'business_pincode' => 'nullable|string|max:10',
+            'business_country' => 'nullable|string|max:100',
+            'alternate_phone' => 'nullable|string|max:20',
+            'business_type' => 'nullable|in:Individual,Partnership,Private Limited,Public Limited,LLP,Other',
             'years_in_business' => 'nullable|integer|min:0',
             'annual_turnover' => 'nullable|string|max:100',
             'gst_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -84,26 +87,31 @@ class DealerController extends Controller
         }
 
         // Create dealer registration
+        // Map simplified field names to database fields
+        $contactPerson = $request->name;
+        $contactEmail = $request->email;
+        $contactPhone = $request->phone;
+        
         $registration = DealerRegistration::create([
             'user_id' => $user->id,
             'business_name' => $request->business_name,
             'gst_number' => $request->gst_number,
-            'pan_number' => $request->pan_number,
+            'pan_number' => $request->pan_number ?? null,
             'business_address' => $request->business_address,
-            'business_city' => $request->business_city,
-            'business_state' => $request->business_state,
-            'business_pincode' => $request->business_pincode,
+            'business_city' => $request->business_city ?? null,
+            'business_state' => $request->business_state ?? null,
+            'business_pincode' => $request->business_pincode ?? null,
             'business_country' => $request->business_country ?? 'India',
-            'contact_person' => $request->contact_person,
-            'contact_email' => $request->contact_email,
-            'contact_phone' => $request->contact_phone,
-            'alternate_phone' => $request->alternate_phone,
-            'company_website' => $request->company_website,
+            'contact_person' => $contactPerson,
+            'contact_email' => $contactEmail,
+            'contact_phone' => $contactPhone,
+            'alternate_phone' => $request->alternate_phone ?? null,
+            'company_website' => $request->company_website ?? null,
             'business_description' => $request->business_description,
-            'business_type' => $request->business_type,
-            'years_in_business' => $request->years_in_business,
-            'annual_turnover' => $request->annual_turnover,
-            'business_documents' => $documents,
+            'business_type' => $request->business_type ?? null,
+            'years_in_business' => $request->years_in_business ?? null,
+            'annual_turnover' => $request->annual_turnover ?? null,
+            'business_documents' => !empty($documents) ? $documents : null,
             'terms_accepted' => true,
             'terms_accepted_at' => now(),
             'status' => 'pending',
@@ -173,15 +181,15 @@ class DealerController extends Controller
     {
         $formatted = [
             'id' => $registration->id,
+            'name' => $registration->contact_person,  // Contact person name
+            'email' => $registration->contact_email,  // Contact email
             'business_name' => $registration->business_name,
             'gst_number' => $registration->gst_number,
-            'pan_number' => $registration->pan_number,
+            'business_address' => $registration->business_address,
+            'phone' => $registration->contact_phone,
+            'company_website' => $registration->company_website,
+            'business_description' => $registration->business_description,
             'status' => $registration->status,
-            'business_city' => $registration->business_city,
-            'business_state' => $registration->business_state,
-            'contact_person' => $registration->contact_person,
-            'contact_email' => $registration->contact_email,
-            'contact_phone' => $registration->contact_phone,
             'reviewed_at' => $registration->reviewed_at?->toISOString(),
             'created_at' => $registration->created_at->toISOString(),
         ];
