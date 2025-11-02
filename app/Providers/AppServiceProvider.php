@@ -28,9 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Configure rate limiting for API
+        // Configure rate limiting for API - Increased to 500 for development and testing
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(500)->by($request->user()?->id ?: $request->ip());
         });
         
         // Use Bootstrap 5 for pagination styling
