@@ -64,15 +64,45 @@ class ProductController extends Controller
         $perPage = $request->get('per_page', 15);
         $products = $query->paginate($perPage);
         
+        // Get authenticated user (optional - for dealer pricing)
+        $user = $this->getAuthenticatedUser($request);
+        
         // Transform products with image URLs
-        $products->getCollection()->transform(function ($product) use ($request) {
-            return $this->transformProduct($product, $request->user());
+        $products->getCollection()->transform(function ($product) use ($user) {
+            return $this->transformProduct($product, $user);
         });
         
         return response()->json([
             'success' => true,
             'data' => $products
         ]);
+    }
+    
+    /**
+     * Get authenticated user from token (optional authentication)
+     */
+    private function getAuthenticatedUser(Request $request)
+    {
+        // Try to get user from request (if middleware authenticated)
+        if ($request->user()) {
+            return $request->user();
+        }
+        
+        // If not authenticated, try to authenticate from token in header
+        $token = $request->bearerToken();
+        if ($token) {
+            try {
+                $personalAccessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+                if ($personalAccessToken) {
+                    return $personalAccessToken->tokenable;
+                }
+            } catch (\Exception $e) {
+                // Token invalid or expired
+                return null;
+            }
+        }
+        
+        return null;
     }
 
     /**
@@ -105,9 +135,12 @@ class ProductController extends Controller
         $perPage = $request->get('per_page', 15);
         $products = $query->paginate($perPage);
         
+        // Get authenticated user (optional - for dealer pricing)
+        $user = $this->getAuthenticatedUser($request);
+        
         // Transform products
-        $products->getCollection()->transform(function ($product) use ($request) {
-            return $this->transformProduct($product, $request->user());
+        $products->getCollection()->transform(function ($product) use ($user) {
+            return $this->transformProduct($product, $user);
         });
         
         return response()->json([
@@ -130,6 +163,9 @@ class ProductController extends Controller
 
         $product->load('category');
         
+        // Get authenticated user (optional - for dealer pricing)
+        $user = $this->getAuthenticatedUser($request);
+        
         // Get related products
         $relatedProducts = AgricultureProduct::active()
             ->inStock()
@@ -137,11 +173,11 @@ class ProductController extends Controller
             ->where('id', '!=', $product->id)
             ->take(4)
             ->get()
-            ->map(function ($related) use ($request) {
-                return $this->transformProduct($related, $request->user());
+            ->map(function ($related) use ($user) {
+                return $this->transformProduct($related, $user);
             });
         
-        $transformedProduct = $this->transformProduct($product, $request->user());
+        $transformedProduct = $this->transformProduct($product, $user);
         $transformedProduct['related_products'] = $relatedProducts;
         
         return response()->json([
@@ -160,9 +196,12 @@ class ProductController extends Controller
         $limit = $request->get('limit', 10);
         $products = $query->limit($limit)->get();
         
+        // Get authenticated user (optional - for dealer pricing)
+        $user = $this->getAuthenticatedUser($request);
+        
         // Transform products
-        $products = $products->map(function ($product) use ($request) {
-            return $this->transformProduct($product, $request->user());
+        $products = $products->map(function ($product) use ($user) {
+            return $this->transformProduct($product, $user);
         });
         
         return response()->json([

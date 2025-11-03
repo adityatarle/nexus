@@ -28,10 +28,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     
-    // Public Product Routes
+    // Public Product Routes (with optional authentication for dealer pricing)
+    // These routes are public but will authenticate user if token is provided
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/search', [ProductController::class, 'search']);
-    // Define static route before dynamic route to avoid model binding issues
     Route::get('/products/featured', [ProductController::class, 'featured']);
     Route::get('/products/{product}', [ProductController::class, 'show']);
     
