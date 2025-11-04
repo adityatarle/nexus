@@ -54,11 +54,14 @@ class AuthController extends Controller
 
             $token = $user->createToken('mobile-app')->plainTextToken;
 
+            // Get user data (business details will be null initially until dealer registration is submitted)
+            $userData = $user->makeHidden(['password', 'remember_token'])->toArray();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Registration successful',
                 'data' => [
-                    'user' => $user->makeHidden(['password', 'remember_token']),
+                    'user' => $userData,
                     'token' => $token,
                 ]
             ], 201);
@@ -117,11 +120,28 @@ class AuthController extends Controller
 
             $token = $user->createToken('mobile-app')->plainTextToken;
 
+            // Get user data with business details if dealer
+            $userData = $user->makeHidden(['password', 'remember_token'])->toArray();
+            
+            // If dealer has registration, merge business details from dealer_registrations
+            if ($user->isDealer() && $user->dealerRegistration) {
+                $registration = $user->dealerRegistration;
+                
+                // Merge business information from dealer_registrations
+                $userData['business_name'] = $registration->business_name ?? $userData['business_name'] ?? null;
+                $userData['gst_number'] = $registration->gst_number ?? $userData['gst_number'] ?? null;
+                $userData['business_address'] = $registration->business_address ?? $userData['business_address'] ?? null;
+                $userData['contact_person'] = $registration->contact_person ?? $userData['contact_person'] ?? null;
+                $userData['company_website'] = $registration->company_website ?? $userData['company_website'] ?? null;
+                $userData['business_description'] = $registration->business_description ?? $userData['business_description'] ?? null;
+                $userData['pan_number'] = $registration->pan_number ?? $userData['pan_number'] ?? null;
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
                 'data' => [
-                    'user' => $user->makeHidden(['password', 'remember_token']),
+                    'user' => $userData,
                     'token' => $token,
                 ]
             ]);
@@ -180,13 +200,24 @@ class AuthController extends Controller
         $userData['is_approved_dealer'] = $user->isApprovedDealer();
         $userData['can_access_dealer_pricing'] = $user->canAccessDealerPricing();
         
-        // Add dealer registration status if dealer
+        // Add dealer registration status and business details if dealer
         if ($user->isDealer() && $user->dealerRegistration) {
+            $registration = $user->dealerRegistration;
+            
+            // Merge business information from dealer_registrations
+            $userData['business_name'] = $registration->business_name ?? $userData['business_name'] ?? null;
+            $userData['gst_number'] = $registration->gst_number ?? $userData['gst_number'] ?? null;
+            $userData['business_address'] = $registration->business_address ?? $userData['business_address'] ?? null;
+            $userData['contact_person'] = $registration->contact_person ?? $userData['contact_person'] ?? null;
+            $userData['company_website'] = $registration->company_website ?? $userData['company_website'] ?? null;
+            $userData['business_description'] = $registration->business_description ?? $userData['business_description'] ?? null;
+            $userData['pan_number'] = $registration->pan_number ?? $userData['pan_number'] ?? null;
+            
             $userData['dealer_registration'] = [
-                'status' => $user->dealerRegistration->status,
-                'is_approved' => $user->dealerRegistration->isApproved(),
-                'is_pending' => $user->dealerRegistration->isPending(),
-                'reviewed_at' => $user->dealerRegistration->reviewed_at?->toISOString(),
+                'status' => $registration->status,
+                'is_approved' => $registration->isApproved(),
+                'is_pending' => $registration->isPending(),
+                'reviewed_at' => $registration->reviewed_at?->toISOString(),
             ];
         } elseif ($user->isDealer()) {
             $userData['dealer_registration'] = [

@@ -18,11 +18,26 @@ class ProfileController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
+        $userData = $user->makeHidden(['password', 'remember_token'])->toArray();
+        
+        // If dealer has registration, merge business details from dealer_registrations
+        if ($user->isDealer() && $user->dealerRegistration) {
+            $registration = $user->dealerRegistration;
+            
+            // Merge business information from dealer_registrations
+            $userData['business_name'] = $registration->business_name ?? $userData['business_name'] ?? null;
+            $userData['gst_number'] = $registration->gst_number ?? $userData['gst_number'] ?? null;
+            $userData['business_address'] = $registration->business_address ?? $userData['business_address'] ?? null;
+            $userData['contact_person'] = $registration->contact_person ?? $userData['contact_person'] ?? null;
+            $userData['company_website'] = $registration->company_website ?? $userData['company_website'] ?? null;
+            $userData['business_description'] = $registration->business_description ?? $userData['business_description'] ?? null;
+            $userData['pan_number'] = $registration->pan_number ?? $userData['pan_number'] ?? null;
+        }
         
         return response()->json([
             'success' => true,
             'data' => [
-                'user' => $user->makeHidden(['password', 'remember_token'])
+                'user' => $userData
             ]
         ]);
     }
