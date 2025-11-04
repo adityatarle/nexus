@@ -39,7 +39,28 @@ class DealerController extends Controller
             ], 400);
         }
 
-        $validator = Validator::make($request->all(), [
+        // Normalize company_website: add https:// if URL is provided without protocol
+        $requestData = $request->all();
+        if (!empty($requestData['company_website'])) {
+            $website = trim($requestData['company_website']);
+            // If it doesn't start with http:// or https://, add https://
+            if (!preg_match('/^https?:\/\//i', $website)) {
+                $requestData['company_website'] = 'https://' . $website;
+            } else {
+                $requestData['company_website'] = $website;
+            }
+        }
+
+        // Normalize terms_accepted: convert string "true" to boolean true
+        if (isset($requestData['terms_accepted'])) {
+            if ($requestData['terms_accepted'] === 'true' || $requestData['terms_accepted'] === '1' || $requestData['terms_accepted'] === 1) {
+                $requestData['terms_accepted'] = true;
+            } elseif ($requestData['terms_accepted'] === 'false' || $requestData['terms_accepted'] === '0' || $requestData['terms_accepted'] === 0) {
+                $requestData['terms_accepted'] = false;
+            }
+        }
+
+        $validator = Validator::make($requestData, [
             // Required fields (as per user requirements)
             'name' => 'required|string|max:255',  // Contact person name
             'email' => 'required|email|max:255',  // Contact email
@@ -70,7 +91,11 @@ class DealerController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
+                'debug' => [
+                    'received_data' => $request->all(),
+                    'normalized_data' => $requestData,
+                ]
             ], 422);
         }
 
@@ -88,29 +113,29 @@ class DealerController extends Controller
 
         // Create dealer registration
         // Map simplified field names to database fields
-        $contactPerson = $request->name;
-        $contactEmail = $request->email;
-        $contactPhone = $request->phone;
+        $contactPerson = $requestData['name'];
+        $contactEmail = $requestData['email'];
+        $contactPhone = $requestData['phone'];
         
         $registration = DealerRegistration::create([
             'user_id' => $user->id,
-            'business_name' => $request->business_name,
-            'gst_number' => $request->gst_number,
-            'pan_number' => $request->pan_number ?? null,
-            'business_address' => $request->business_address,
-            'business_city' => $request->business_city ?? null,
-            'business_state' => $request->business_state ?? null,
-            'business_pincode' => $request->business_pincode ?? null,
-            'business_country' => $request->business_country ?? 'India',
+            'business_name' => $requestData['business_name'],
+            'gst_number' => $requestData['gst_number'],
+            'pan_number' => $requestData['pan_number'] ?? null,
+            'business_address' => $requestData['business_address'],
+            'business_city' => $requestData['business_city'] ?? null,
+            'business_state' => $requestData['business_state'] ?? null,
+            'business_pincode' => $requestData['business_pincode'] ?? null,
+            'business_country' => $requestData['business_country'] ?? 'India',
             'contact_person' => $contactPerson,
             'contact_email' => $contactEmail,
             'contact_phone' => $contactPhone,
-            'alternate_phone' => $request->alternate_phone ?? null,
-            'company_website' => $request->company_website ?? null,
-            'business_description' => $request->business_description,
-            'business_type' => $request->business_type ?? null,
-            'years_in_business' => $request->years_in_business ?? null,
-            'annual_turnover' => $request->annual_turnover ?? null,
+            'alternate_phone' => $requestData['alternate_phone'] ?? null,
+            'company_website' => $requestData['company_website'] ?? null,
+            'business_description' => $requestData['business_description'],
+            'business_type' => $requestData['business_type'] ?? null,
+            'years_in_business' => $requestData['years_in_business'] ?? null,
+            'annual_turnover' => $requestData['annual_turnover'] ?? null,
             'business_documents' => !empty($documents) ? $documents : null,
             'terms_accepted' => true,
             'terms_accepted_at' => now(),
