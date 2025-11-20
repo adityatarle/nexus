@@ -124,20 +124,51 @@
                                     <th>Product</th>
                                     <th>SKU</th>
                                     <th>Quantity</th>
+                                    <th>Original Price</th>
+                                    <th>Discount</th>
                                     <th>Price</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($order->items as $item)
+                                @php
+                                    $originalPrice = $item->original_price ?? $item->price;
+                                    $discountAmount = $item->discount_amount ?? 0;
+                                    $hasDiscount = $discountAmount > 0;
+                                    $offerDetails = $item->offer_details ?? null;
+                                @endphp
                                 <tr>
                                     <td>
                                         <strong>{{ $item->product_name }}</strong>
+                                        @if($offerDetails)
+                                            <br><small class="text-success">
+                                                <i class="fas fa-tag me-1"></i>{{ $offerDetails['title'] ?? 'Offer Applied' }}
+                                            </small>
+                                        @endif
                                     </td>
                                     <td>{{ $item->product_sku }}</td>
                                     <td>{{ $item->quantity }}</td>
-                                    <td>{{ $currencySymbol ?? '₹' }}{{ number_format($item->price, 2) }}</td>
-                                    <td>{{ $currencySymbol ?? '₹' }}{{ number_format($item->total, 2) }}</td>
+                                    <td>
+                                        @if($hasDiscount)
+                                            <span class="text-muted text-decoration-line-through">{{ $currencySymbol ?? '₹' }}{{ number_format($originalPrice, 2) }}</span>
+                                        @else
+                                            {{ $currencySymbol ?? '₹' }}{{ number_format($originalPrice, 2) }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($hasDiscount)
+                                            <span class="text-danger">
+                                                -{{ $currencySymbol ?? '₹' }}{{ number_format($discountAmount, 2) }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <strong>{{ $currencySymbol ?? '₹' }}{{ number_format($item->price, 2) }}</strong>
+                                    </td>
+                                    <td><strong>{{ $currencySymbol ?? '₹' }}{{ number_format($item->total, 2) }}</strong></td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -164,6 +195,27 @@
                         <div class="col-md-6">
                             <h5>Order Summary</h5>
                             <table class="table table-sm">
+                                @php
+                                    $totalDiscount = $order->items->sum('discount_amount') ?? 0;
+                                    $originalSubtotal = $order->items->sum(function($item) {
+                                        $originalPrice = $item->original_price ?? $item->price;
+                                        return $originalPrice * $item->quantity;
+                                    });
+                                @endphp
+                                @if($totalDiscount > 0)
+                                <tr>
+                                    <td>Subtotal (Original):</td>
+                                    <td class="text-right">
+                                        <span class="text-muted text-decoration-line-through">{{ $currencySymbol ?? '₹' }}{{ number_format($originalSubtotal, 2) }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Discount:</td>
+                                    <td class="text-right text-danger">
+                                        <strong>-{{ $currencySymbol ?? '₹' }}{{ number_format($totalDiscount, 2) }}</strong>
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td>Subtotal:</td>
                                     <td class="text-right">{{ $currencySymbol ?? '₹' }}{{ number_format($order->subtotal, 2) }}</td>
