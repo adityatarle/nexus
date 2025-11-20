@@ -53,9 +53,8 @@ class ProductStoreRequest extends FormRequest
                 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', // Lowercase with hyphens only
             ],
             'description' => [
-                'required',
+                'nullable',
                 'string',
-                'min:10', // Reduced from 50 to 10 for easier testing
                 'max:10000',
             ],
             'short_description' => [
@@ -107,6 +106,10 @@ class ProductStoreRequest extends FormRequest
                 'required',
                 'exists:agriculture_categories,id',
             ],
+            'agriculture_subcategory_id' => [
+                'nullable',
+                'exists:agriculture_subcategories,id',
+            ],
             'brand' => [
                 'nullable',
                 'string',
@@ -145,7 +148,7 @@ class ProductStoreRequest extends FormRequest
                 'boolean',
             ],
             'primary_image' => [
-                'nullable',
+                'required',
                 'image',
                 'mimes:jpeg,jpg,png,webp',
                 'max:2048', // 2MB

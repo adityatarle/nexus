@@ -48,11 +48,13 @@ class AppServiceProvider extends ServiceProvider
             $siteSettings = [
                 'site_name' => Setting::get('site_name', 'Nexus Agriculture'),
                 'site_logo' => Setting::get('site_logo'),
+                'currency_symbol' => Setting::get('currency_symbol', '₹'),
             ];
 
             $view->with('cartCount', $cartCount)
                  ->with('wishlistCount', $wishlistCount)
-                 ->with('siteSettings', $siteSettings);
+                 ->with('siteSettings', $siteSettings)
+                 ->with('currencySymbol', Setting::get('currency_symbol', '₹'));
         });
     }
 }

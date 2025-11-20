@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\DealerManagementController;
 
@@ -43,6 +44,7 @@ Route::post('/admin/login', function (\Illuminate\Http\Request $request) {
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\OfferController;
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->group(function () {
     
@@ -50,12 +52,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Products Management
-    Route::resource('products', ProductController::class);
+    // Custom routes must be defined BEFORE resource routes to avoid route conflicts
+    Route::get('products/download-template', [ProductController::class, 'downloadTemplate'])->name('products.download-template');
+    Route::post('products/import', [ProductController::class, 'import'])->name('products.import');
     Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
     Route::patch('products/{product}/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
+    Route::resource('products', ProductController::class);
     
     // Categories Management
     Route::resource('categories', CategoryController::class);
+    
+    // Subcategories Management
+    Route::resource('subcategories', SubcategoryController::class);
     
     // Orders Management
     Route::resource('orders', OrderController::class);
@@ -91,5 +99,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::post('/settings/single', [SettingsController::class, 'updateSingle'])->name('settings.update-single');
+    Route::post('/settings/upload-apk', [SettingsController::class, 'uploadApk'])->name('settings.upload-apk');
+    
+    // Offers Management
+    Route::prefix('offers')->name('offers.')->group(function () {
+        Route::patch('/{offer}/toggle-status', [OfferController::class, 'toggleStatus'])->name('toggle-status');
+        Route::patch('/{offer}/toggle-featured', [OfferController::class, 'toggleFeatured'])->name('toggle-featured');
+    });
+    Route::resource('offers', OfferController::class);
     
 });

@@ -365,6 +365,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/organic/js/jquery-1.11.0.min.js') }}"></script>
     <script src="{{ asset('assets/organic/js/plugins.js') }}"></script>
     <script src="{{ asset('assets/organic/js/script.js') }}"></script>
@@ -373,6 +374,101 @@
     <script>
         window.Laravel = {
             csrfToken: '{{ csrf_token() }}'
+        };
+
+        // SweetAlert2 for session messages
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ session('success') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning!',
+                text: '{{ session('warning') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('info'))
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: '{{ session('info') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        @endif
+
+        // Handle validation errors
+        @if($errors->any())
+            const errorMessages = @json($errors->all());
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                html: '<ul style="text-align: left; margin: 10px 0;"><li>' + errorMessages.join('</li><li>') + '</li></ul>',
+                confirmButtonText: 'OK'
+            });
+        @endif
+
+        // Helper function for SweetAlert (replaces alert())
+        window.showAlert = function(message, type = 'info', title = null) {
+            const config = {
+                icon: type,
+                text: message,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: type === 'error' ? 4000 : 3000,
+                timerProgressBar: true
+            };
+            
+            if (title) {
+                config.title = title;
+            } else {
+                config.title = type.charAt(0).toUpperCase() + type.slice(1) + '!';
+            }
+            
+            Swal.fire(config);
+        };
+
+        // Replace native alert with SweetAlert
+        window.alert = function(message) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Notice',
+                text: message,
+                confirmButtonText: 'OK'
+            });
         };
     </script>
 

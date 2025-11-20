@@ -13,7 +13,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::customers()->with('agricultureOrders');
+        $query = User::customers()->withCount('agricultureOrders');
 
         // Search functionality
         if ($request->filled('search')) {
@@ -64,6 +64,14 @@ class CustomerController extends Controller
         return view('admin.customers.show', compact('user', 'orders', 'stats'));
     }
 }
+
+
+
+
+
+
+
+
 
 
 

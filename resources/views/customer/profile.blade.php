@@ -119,7 +119,7 @@
             </div>
 
             <!-- Change Password -->
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Change Password</h5>
                 </div>
@@ -159,10 +159,94 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Recent Orders -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>Recent Orders</h5>
+                    <a href="{{ route('customer.orders') }}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if($recentOrders->count() > 0)
+                        @foreach($recentOrders as $order)
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <a href="{{ route('customer.orders.show', $order->order_number) }}" class="text-decoration-none">
+                                                Order #{{ $order->order_number }}
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted">{{ $order->created_at->format('M d, Y h:i A') }}</small>
+                                    </div>
+                                    <div>
+                                        @php
+                                            $statusColors = [
+                                                'inquiry' => 'info',
+                                                'pending' => 'warning',
+                                                'processing' => 'primary',
+                                                'shipped' => 'info',
+                                                'delivered' => 'success',
+                                                'cancelled' => 'danger'
+                                            ];
+                                            $color = $statusColors[$order->order_status] ?? 'secondary';
+                                        @endphp
+                                        <span class="badge bg-{{ $color }}">
+                                            @if($order->order_status === 'inquiry')
+                                                <i class="fas fa-question-circle me-1"></i>Inquiry
+                                            @else
+                                                {{ ucfirst($order->order_status) }}
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <small class="text-muted">Items:</small>
+                                        <ul class="list-unstyled mb-0">
+                                            @foreach($order->items->take(3) as $item)
+                                                <li class="small">
+                                                    <strong>{{ $item->product_name ?? 'N/A' }}</strong>
+                                                    <span class="text-muted"> × {{ $item->quantity }}</span>
+                                                </li>
+                                            @endforeach
+                                            @if($order->items->count() > 3)
+                                                <li class="small text-muted">+ {{ $order->items->count() - 3 }} more item(s)</li>
+                                            @endif
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="mb-2">
+                                            <small class="text-muted">Total</small>
+                                            <div class="h6 mb-0 text-primary">₹{{ number_format($order->total_amount, 2) }}</div>
+                                        </div>
+                                        <a href="{{ route('customer.orders.show', $order->order_number) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No orders yet</p>
+                            <a href="{{ route('agriculture.products.index') }}" class="btn btn-primary btn-sm mt-2">
+                                <i class="fas fa-shopping-cart me-1"></i>Start Shopping
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 </div>
 @endsection
+
+
+
 
 
 

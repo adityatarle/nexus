@@ -47,10 +47,10 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="badge badge-info">{{ $category->products_count }} products</span>
+                                            <span class="badge bg-info">{{ $category->products_count }} products</span>
                                         </td>
                                         <td>
-                                            <span class="badge badge-{{ $category->is_active ? 'success' : 'secondary' }}">
+                                            <span class="badge bg-{{ $category->is_active ? 'success' : 'secondary' }}">
                                                 {{ $category->is_active ? 'Active' : 'Inactive' }}
                                             </span>
                                         </td>
@@ -64,11 +64,10 @@
                                                 <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="d-inline delete-form" data-name="{{ $category->name }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger" 
-                                                            onclick="return confirm('Are you sure you want to delete this category?')">
+                                                    <button type="submit" class="btn btn-sm btn-danger delete-btn">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -98,4 +97,32 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    // Handle delete confirmations with SweetAlert
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const categoryName = form.getAttribute('data-name') || 'this category';
+            
+            Swal.fire({
+                title: 'Delete Category?',
+                html: `Are you sure you want to delete <strong>${categoryName}</strong>?<br><small class="text-danger">This action cannot be undone!</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush
 @endsection

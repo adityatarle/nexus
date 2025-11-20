@@ -74,9 +74,15 @@ Route::prefix('customer')->name('customer.')->middleware('auth')->group(function
     Route::post('/notifications/mark-all-read', [CustomerDashboardController::class, 'markAllNotificationsRead'])->name('notifications.mark-all-read');
 });
 
-// Agriculture Home page - use the original theme homepage UI
+// Coming Soon Home page (new home page)
 use App\Http\Controllers\HomeController;
-Route::get('/', [HomeController::class, 'index'])->name('agriculture.home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// APK Download route
+Route::get('/download-app', [HomeController::class, 'downloadApk'])->name('app.download');
+
+// Old Agriculture Home page (kept aside for future use)
+Route::get('/old-home', [HomeController::class, 'index'])->name('agriculture.home');
 
 // Agriculture Product routes
 Route::get('/products', [AgricultureProductController::class, 'index'])->name('agriculture.products.index');
@@ -166,6 +172,12 @@ Route::post('/newsletter/subscribe', function (\Illuminate\Http\Request $request
     // Simple newsletter subscription (you can integrate with email service later)
     return redirect()->back()->with('success', 'Thank you for subscribing to our newsletter!');
 })->name('newsletter.subscribe');
+
+// Image serving route (fallback for when symlinks fail)
+use App\Http\Controllers\ImageController;
+Route::get('/image/{path}', [ImageController::class, 'serve'])
+    ->where('path', '.*')
+    ->name('image.serve');
 
 // Admin Routes
 require __DIR__.'/admin.php';

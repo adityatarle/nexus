@@ -239,7 +239,7 @@ $(document).ready(function() {
                 }, 2000);
             },
             error: function(xhr) {
-                alert('Error adding product to cart');
+                showAlert('Error adding product to cart', 'error', 'Cart Error');
             }
         });
     });

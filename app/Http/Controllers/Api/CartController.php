@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AgricultureProduct;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -34,9 +35,9 @@ class CartController extends Controller
                 $itemSubtotal = $price * $quantity;
                 $subtotal += $itemSubtotal;
 
-                $image = $product->primary_image
-                    ?? $product->featured_image
-                    ?? (is_array($product->gallery_images) && count($product->gallery_images) ? $product->gallery_images[0] : null);
+                // Use ImageHelper for consistent image URLs
+                $imageUrl = ImageHelper::productImageUrl($product);
+                $imageUrl = $this->ensureAbsoluteUrl($imageUrl);
 
                 $cartItems[] = [
                     'product_id' => $product->id,
@@ -45,7 +46,7 @@ class CartController extends Controller
                     'price' => $price,
                     'quantity' => $quantity,
                     'subtotal' => (float) $itemSubtotal,
-                    'image' => $image ? asset('storage/' . $image) : asset('assets/organic/images/product-thumb-1.png'),
+                    'image' => $imageUrl, // Full absolute URL
                     'in_stock' => $product->in_stock,
                     'stock_quantity' => $product->stock_quantity,
                 ];
@@ -61,9 +62,9 @@ class CartController extends Controller
                     $itemSubtotal = $price * $quantity;
                     $subtotal += $itemSubtotal;
 
-                    $image = $product->primary_image
-                        ?? $product->featured_image
-                        ?? (is_array($product->gallery_images) && count($product->gallery_images) ? $product->gallery_images[0] : null);
+                    // Use ImageHelper for consistent image URLs
+                    $imageUrl = ImageHelper::productImageUrl($product);
+                    $imageUrl = $this->ensureAbsoluteUrl($imageUrl);
 
                     $cartItems[] = [
                         'product_id' => $product->id,
@@ -72,7 +73,7 @@ class CartController extends Controller
                         'price' => (float) $price,
                         'quantity' => $quantity,
                         'subtotal' => (float) $itemSubtotal,
-                        'image' => $image ? asset('storage/' . $image) : asset('assets/organic/images/product-thumb-1.png'),
+                        'image' => $imageUrl, // Full absolute URL
                         'in_stock' => $product->in_stock,
                         'stock_quantity' => $product->stock_quantity,
                     ];
@@ -307,6 +308,26 @@ class CartController extends Controller
                 'count' => $totalItems
             ]
         ]);
+    }
+    
+    /**
+     * Ensure URL is absolute (full URL) for mobile apps
+     * 
+     * @param string $url
+     * @return string
+     */
+    private function ensureAbsoluteUrl(string $url): string
+    {
+        // If already absolute URL, return as is
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return $url;
+        }
+        
+        // Convert relative URL to absolute using APP_URL
+        $baseUrl = rtrim(config('app.url'), '/');
+        $url = ltrim($url, '/');
+        
+        return $baseUrl . '/' . $url;
     }
 }
 

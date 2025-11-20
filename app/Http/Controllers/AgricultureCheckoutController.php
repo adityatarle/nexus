@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\AgricultureOrder;
 use App\Models\AgricultureOrderItem;
 use App\Models\AgricultureProduct;
+use App\Models\Offer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class AgricultureCheckoutController extends Controller
@@ -27,10 +29,9 @@ class AgricultureCheckoutController extends Controller
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
-            'customer_phone' => 'nullable|string|max:20',
+            'customer_phone' => 'required|string|max:20',
             'billing_address' => 'required|string',
             'shipping_address' => 'nullable|string',
-            'payment_method' => 'required|in:credit_card,bank_transfer,cash_on_delivery',
             'notes' => 'nullable|string',
             'terms' => 'required|accepted'
         ]);
@@ -46,71 +47,110 @@ class AgricultureCheckoutController extends Controller
         $subtotal = 0;
         $taxRate = 0.08; // 8% tax
         $shippingCost = 25;
+        $user = Auth::user(); // Get authenticated user for dealer pricing
 
         foreach ($cart as $item) {
             $product = AgricultureProduct::find($item['product_id']);
             if ($product) {
-                $subtotal += $product->current_price * $item['quantity'];
+                // Use getPriceForUser to ensure consistent pricing (handles dealer pricing)
+                $price = $item['price'] ?? $product->getPriceForUser($user);
+                $subtotal += $price * $item['quantity'];
             }
         }
 
-        $taxAmount = $subtotal * $taxRate;
-        $totalAmount = $subtotal + $taxAmount + $shippingCost;
+        $taxAmount = round($subtotal * $taxRate, 2);
+        $totalAmount = round($subtotal + $taxAmount + $shippingCost, 2);
 
         // Generate unique order number
         $orderNumber = 'AGR-' . strtoupper(Str::random(8));
 
-        // Create order
+        // Create order as inquiry (no payment required)
         $order = AgricultureOrder::create([
             'order_number' => $orderNumber,
+            'user_id' => Auth::id(), // Associate order with logged-in user if available
             'customer_name' => $request->customer_name,
             'customer_email' => $request->customer_email,
             'customer_phone' => $request->customer_phone,
-            'billing_address' => $request->billing_address,
-            'shipping_address' => $request->shipping_address ?: $request->billing_address,
+            'billing_address' => ['address' => $request->billing_address], // Store as array for JSON column
+            'shipping_address' => $request->shipping_address ? ['address' => $request->shipping_address] : ['address' => $request->billing_address],
             'subtotal' => $subtotal,
             'tax_amount' => $taxAmount,
             'shipping_amount' => $shippingCost,
             'total_amount' => $totalAmount,
-            'payment_method' => $request->payment_method,
-            'payment_status' => 'pending',
-            'order_status' => 'pending',
+            'payment_method' => 'inquiry', // Mark as inquiry (no payment)
+            'payment_status' => 'not_required', // No payment needed
+            'order_status' => 'inquiry', // Status: inquiry (admin will follow up)
             'notes' => $request->notes
         ]);
 
-        // Create order items
+        // Create order items and recalculate subtotal from items to ensure accuracy
+        $calculatedSubtotal = 0;
         foreach ($cart as $item) {
             $product = AgricultureProduct::find($item['product_id']);
             if ($product) {
+                // Get base price (without offers)
+                $originalPrice = $item['price'] ?? $product->getPriceForUser($user);
+                
+                // Calculate offer discount for this product
+                $offerResult = $this->calculateOfferForProduct($product, $originalPrice, $item['quantity'], $user);
+                
+                // Use discounted price if offer applies, otherwise use original price
+                $finalPrice = $offerResult['final_price'];
+                $discountAmount = $offerResult['discount_amount'];
+                $bestOffer = $offerResult['offer'];
+                
+                $itemTotal = round($finalPrice * $item['quantity'], 2);
+                $calculatedSubtotal += $itemTotal;
+                
+                // Prepare offer details for storage
+                $offerDetails = null;
+                if ($bestOffer) {
+                    $offerDetails = [
+                        'id' => $bestOffer->id,
+                        'title' => $bestOffer->title,
+                        'discount_type' => $bestOffer->discount_type,
+                        'discount_value' => (float) $bestOffer->discount_value,
+                    ];
+                }
+                
                 AgricultureOrderItem::create([
                     'agriculture_order_id' => $order->id,
                     'agriculture_product_id' => $product->id,
                     'product_name' => $product->name,
                     'product_sku' => $product->sku,
                     'quantity' => $item['quantity'],
-                    'price' => $product->current_price,
-                    'total' => $product->current_price * $item['quantity']
+                    'original_price' => round($originalPrice, 2),
+                    'price' => round($finalPrice, 2), // Final price after discount
+                    'discount_amount' => round($discountAmount, 2),
+                    'offer_id' => $bestOffer ? $bestOffer->id : null,
+                    'offer_details' => $offerDetails,
+                    'total' => $itemTotal
                 ]);
 
-                // Update product stock
-                if ($product->manage_stock) {
-                    $product->decrement('stock_quantity', $item['quantity']);
-                    
-                    // Mark as out of stock if quantity reaches 0
-                    if ($product->stock_quantity <= 0) {
-                        $product->update(['in_stock' => false]);
-                    }
-                }
+                // Don't reduce stock - this is just an inquiry, not a confirmed order
+                // Stock will be managed when admin confirms the order
             }
         }
+        
+        // Recalculate tax and total based on actual order items subtotal
+        $calculatedSubtotal = round($calculatedSubtotal, 2);
+        $calculatedTaxAmount = round($calculatedSubtotal * $taxRate, 2);
+        $calculatedTotalAmount = round($calculatedSubtotal + $calculatedTaxAmount + $shippingCost, 2);
+        
+        // Update order with recalculated values to ensure accuracy
+        $order->update([
+            'subtotal' => $calculatedSubtotal,
+            'tax_amount' => $calculatedTaxAmount,
+            'total_amount' => $calculatedTotalAmount
+        ]);
 
         // Clear cart
         session()->forget('cart');
         session()->forget('cart_total');
 
-        // Redirect to order confirmation
+        // Redirect to inquiry confirmation
         return redirect()->route('agriculture.checkout.success', $order->order_number)
-            ->with('success', 'Order placed successfully!');
+            ->with('success', 'Thank you! We have received your inquiry.');
     }
 
     public function success($orderNumber)
@@ -119,5 +159,87 @@ class AgricultureCheckoutController extends Controller
         $order->load('items.product');
 
         return view('agriculture.checkout-success', compact('order'));
+    }
+
+    /**
+     * Calculate the best offer for a product
+     * 
+     * @param AgricultureProduct $product
+     * @param float $originalPrice
+     * @param int $quantity
+     * @param mixed $user
+     * @return array
+     */
+    private function calculateOfferForProduct($product, $originalPrice, $quantity, $user = null)
+    {
+        $amount = $originalPrice * $quantity;
+        
+        // Get applicable offers
+        $offers = Offer::valid()
+            ->where(function($query) use ($product) {
+                $query->where('offer_type', 'general')
+                    ->orWhere(function($q) use ($product) {
+                        $q->where('offer_type', 'product')
+                          ->where('product_id', $product->id);
+                    })
+                    ->orWhere(function($q) use ($product) {
+                        if ($product->agriculture_category_id) {
+                            $q->where('offer_type', 'category')
+                              ->where('category_id', $product->agriculture_category_id);
+                        }
+                        if ($product->agriculture_subcategory_id) {
+                            $q->orWhere(function($subQ) use ($product) {
+                                $subQ->where('offer_type', 'subcategory')
+                                     ->where('subcategory_id', $product->agriculture_subcategory_id);
+                            });
+                        }
+                    });
+            });
+
+        // Filter by user type
+        if ($user && $user->isDealer()) {
+            $offers->forDealers();
+        } else {
+            $offers->forCustomers();
+        }
+
+        $offers = $offers->orderBy('priority', 'desc')->get();
+
+        $bestOffer = null;
+        $maxDiscount = 0;
+
+        foreach ($offers as $offer) {
+            // Check minimum requirements
+            if ($offer->min_purchase_amount && $amount < $offer->min_purchase_amount) {
+                continue;
+            }
+
+            if ($offer->min_quantity && $quantity < $offer->min_quantity) {
+                continue;
+            }
+
+            if (!$offer->canBeUsedBy($user)) {
+                continue;
+            }
+
+            $discount = $offer->calculateDiscount($amount);
+            
+            if ($discount > $maxDiscount) {
+                $maxDiscount = $discount;
+                $bestOffer = $offer;
+            }
+        }
+
+        // Calculate final price per unit
+        $totalDiscount = $maxDiscount;
+        $finalAmount = $amount - $totalDiscount;
+        $finalPricePerUnit = $quantity > 0 ? ($finalAmount / $quantity) : $originalPrice;
+
+        return [
+            'original_price' => $originalPrice,
+            'final_price' => round($finalPricePerUnit, 2),
+            'discount_amount' => round($totalDiscount, 2),
+            'offer' => $bestOffer
+        ];
     }
 }

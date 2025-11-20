@@ -101,7 +101,14 @@ class CustomerDashboardController extends Controller
             return redirect()->route('auth.login')->with('error', 'Please login as a customer.');
         }
 
-        return view('customer.profile', compact('user'));
+        // Get recent orders for the profile page
+        $recentOrders = $user->agricultureOrders()
+            ->with('items.product')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('customer.profile', compact('user', 'recentOrders'));
     }
 
     /**
@@ -218,6 +225,9 @@ class CustomerDashboardController extends Controller
         return redirect()->back()->with('success', 'All notifications marked as read.');
     }
 }
+
+
+
 
 
 

@@ -7,6 +7,8 @@ use App\Models\AgricultureProduct;
 use App\Models\User;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class HomeController extends Controller
 {
@@ -58,5 +60,75 @@ class HomeController extends Controller
         ];
         
         return view('home', compact('categories', 'featuredProducts', 'newArrivals', 'bestSellers', 'stats'));
+    }
+
+    /**
+     * Show the coming soon page
+     */
+    public function comingSoon()
+    {
+        return view('coming-soon');
+    }
+
+    /**
+     * Download APK file
+     */
+    public function downloadApk()
+    {
+        // First, try to get APK path from settings (if uploaded via admin)
+        $apkPath = Setting::get('app_apk_path', null);
+        
+        // If no setting, look for default APK files in app-downloads directory
+        if (!$apkPath || !Storage::disk('public')->exists($apkPath)) {
+            // Default APK file names to check (in order of preference)
+            $defaultApkNames = [
+                'app.apk',
+                'nexus-agriculture.apk',
+                'agriculture-app.apk',
+                'application.apk'
+            ];
+            
+            $foundApk = null;
+            foreach ($defaultApkNames as $apkName) {
+                $defaultPath = "app-downloads/{$apkName}";
+                if (Storage::disk('public')->exists($defaultPath)) {
+                    $foundApk = $defaultPath;
+                    break;
+                }
+            }
+            
+            // If still not found, look for any .apk file in the directory
+            if (!$foundApk) {
+                $directory = 'app-downloads';
+                if (Storage::disk('public')->exists($directory)) {
+                    $files = Storage::disk('public')->files($directory);
+                    foreach ($files as $file) {
+                        if (pathinfo($file, PATHINFO_EXTENSION) === 'apk') {
+                            $foundApk = $file;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if ($foundApk) {
+                $apkPath = $foundApk;
+            } else {
+                // Return a user-friendly error page instead of 404
+                return redirect()->route('home')->with('error', 'APK file is not available yet. Please check back soon or contact the administrator.');
+            }
+        }
+
+        $fullPath = Storage::disk('public')->path($apkPath);
+        $filename = basename($apkPath);
+
+        // Verify file exists before downloading
+        if (!file_exists($fullPath)) {
+            return redirect()->route('home')->with('error', 'APK file not found. Please contact the administrator.');
+        }
+
+        return response()->download($fullPath, $filename, [
+            'Content-Type' => 'application/vnd.android.package-archive',
+        ]);
     }
 }

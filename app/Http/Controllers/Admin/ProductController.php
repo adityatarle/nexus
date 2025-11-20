@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AgricultureProduct;
 use App\Models\AgricultureCategory;
+use App\Models\AgricultureSubcategory;
 use App\Http\Requests\ProductStoreRequest;
 use App\Services\FileUploadService;
+use App\Imports\ProductImport;
+use App\Exports\ProductTemplateExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Exception;
@@ -24,7 +28,7 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $query = AgricultureProduct::with('category');
+        $query = AgricultureProduct::with(['category', 'subcategory']);
         
         // Search functionality
         if ($request->filled('search')) {
@@ -63,7 +67,8 @@ class ProductController extends Controller
     public function create()
     {
         $categories = AgricultureCategory::active()->get();
-        return view('admin.products.create', compact('categories'));
+        $subcategories = AgricultureSubcategory::active()->get();
+        return view('admin.products.create', compact('categories', 'subcategories'));
     }
     
     public function store(ProductStoreRequest $request)
@@ -191,7 +196,8 @@ class ProductController extends Controller
     public function edit(AgricultureProduct $product)
     {
         $categories = AgricultureCategory::active()->get();
-        return view('admin.products.edit', compact('product', 'categories'));
+        $subcategories = AgricultureSubcategory::active()->get();
+        return view('admin.products.edit', compact('product', 'categories', 'subcategories'));
     }
     
     public function update(Request $request, AgricultureProduct $product)
@@ -210,7 +216,7 @@ class ProductController extends Controller
             // Validate the request
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
+                'description' => 'required|string|min:50',
                 'short_description' => 'nullable|string',
                 'price' => 'required|numeric|min:0',
                 'sale_price' => 'nullable|numeric|min:0',
@@ -225,6 +231,7 @@ class ProductController extends Controller
                 'weight' => 'nullable|numeric|min:0',
                 'dimensions' => 'nullable|string|max:255',
                 'agriculture_category_id' => 'required|exists:agriculture_categories,id',
+                'agriculture_subcategory_id' => 'nullable|exists:agriculture_subcategories,id',
                 'is_featured' => 'boolean',
                 'is_active' => 'boolean',
                 'in_stock' => 'boolean',
@@ -357,5 +364,121 @@ class ProductController extends Controller
         $status = $product->is_featured ? 'added to' : 'removed from';
         return redirect()->back()
             ->with('success', "Product {$status} featured products!");
+    }
+    
+    /**
+     * Download Excel template for product import
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new ProductTemplateExport(), 'product_import_template.xlsx');
+    }
+    
+    /**
+     * Import products from Excel file
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls|max:10240', // 10MB max
+        ]);
+        
+        try {
+            $import = new ProductImport();
+            
+            \Log::info('Starting product import', [
+                'file_name' => $request->file('excel_file')->getClientOriginalName(),
+                'file_size' => $request->file('excel_file')->getSize(),
+            ]);
+            
+            Excel::import($import, $request->file('excel_file'));
+            
+            $successCount = $import->getSuccessCount();
+            $failCount = $import->getFailCount();
+            $errors = $import->getErrors();
+            $info = $import->getInfo();
+            
+            $totalRowsProcessed = method_exists($import, 'getTotalRowsProcessed') ? $import->getTotalRowsProcessed() : 0;
+            
+            \Log::info('Product import completed', [
+                'success_count' => $successCount,
+                'fail_count' => $failCount,
+                'error_count' => count($errors),
+                'info_count' => count($info),
+                'total_rows_processed' => $totalRowsProcessed,
+            ]);
+            
+            // If no rows were processed at all, it might be a file format issue
+            if ($totalRowsProcessed == 0 && $successCount == 0 && $failCount == 0) {
+                \Log::warning('Product Import - No rows were processed. This might indicate a file format issue.');
+                return redirect()->back()
+                    ->withErrors(['excel_file' => 'No data rows found in the Excel file. Please ensure the file has data rows below the header.'])
+                    ->with('import_errors', ['No data rows were found in the Excel file.']);
+            }
+            
+            $message = "Import completed! {$successCount} product(s) imported successfully.";
+            
+            if ($failCount > 0) {
+                $message .= " {$failCount} product(s) failed to import.";
+            }
+            
+            if (!empty($info)) {
+                // Store info messages in session to display
+                $request->session()->flash('import_info', $info);
+            }
+            
+            if (!empty($errors)) {
+                // Store errors in session to display
+                $request->session()->flash('import_errors', $errors);
+            }
+            
+            return redirect()->route('admin.products.index')
+                ->with('success', $message)
+                ->with('import_errors', $errors)
+                ->with('import_info', $info);
+                
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+            
+            foreach ($failures as $failure) {
+                $row = $failure->row();
+                $attribute = $failure->attribute();
+                $errors = $failure->errors();
+                
+                foreach ($errors as $error) {
+                    $errorMessages[] = "Row {$row}, Column {$attribute}: {$error}";
+                }
+            }
+            
+            return redirect()->back()
+                ->withErrors(['excel_file' => 'Validation errors in Excel file'])
+                ->with('import_errors', $errorMessages);
+                
+        } catch (\Exception $e) {
+            \Log::error('Product Import Failed', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            $errorMessage = 'Error importing products: ' . $e->getMessage();
+            
+            // If we have any errors from the import, include them
+            if (isset($import) && method_exists($import, 'getErrors')) {
+                $importErrors = $import->getErrors();
+                if (!empty($importErrors)) {
+                    $errorMessage .= "\n\nImport Errors:\n" . implode("\n", array_slice($importErrors, 0, 10));
+                    if (count($importErrors) > 10) {
+                        $errorMessage .= "\n... and " . (count($importErrors) - 10) . " more errors.";
+                    }
+                }
+            }
+            
+            return redirect()->back()
+                ->withErrors(['excel_file' => $errorMessage])
+                ->with('import_errors', isset($import) && method_exists($import, 'getErrors') ? $import->getErrors() : []);
+        }
     }
 }

@@ -17,6 +17,8 @@ class FileUploadService
         'image/jpg',
         'image/png',
         'image/webp',
+        'image/x-png', // Some systems report PNG as this
+        'image/pjpeg', // Some older systems
     ];
 
     /**
@@ -46,8 +48,8 @@ class FileUploadService
      */
     public function uploadProductImage(UploadedFile $file, string $type = 'product'): string
     {
-        // Validate file
-        $this->validateFile($file);
+        // Validate file (with relaxed dimensions for banners)
+        $this->validateFile($file, $type === 'banner');
 
         // Generate secure filename
         $filename = $this->generateSecureFilename($file);
@@ -92,9 +94,10 @@ class FileUploadService
      * Validate uploaded image file
      *
      * @param UploadedFile $file
+     * @param bool $relaxDimensions For banners, allow wider images
      * @throws Exception
      */
-    private function validateFile(UploadedFile $file): void
+    private function validateFile(UploadedFile $file, bool $relaxDimensions = false): void
     {
         // Check if file was uploaded successfully
         if (!$file->isValid()) {
@@ -108,20 +111,56 @@ class FileUploadService
 
         // Check MIME type
         $mimeType = $file->getMimeType();
-        if (!in_array($mimeType, self::ALLOWED_MIME_TYPES)) {
-            throw new Exception('Invalid file type. Only JPEG, PNG, and WebP images are allowed.');
+        
+        // Normalize MIME types (jpeg and jpg are the same)
+        $normalizedMimeType = $mimeType;
+        if ($mimeType === 'image/jpg' || $mimeType === 'image/pjpeg') {
+            $normalizedMimeType = 'image/jpeg';
+        }
+        if ($mimeType === 'image/x-png') {
+            $normalizedMimeType = 'image/png';
+        }
+        
+        // Check if MIME type is allowed (check both original and normalized)
+        $allowedBaseTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        $isValidMimeType = in_array($mimeType, self::ALLOWED_MIME_TYPES) || 
+                          in_array($normalizedMimeType, $allowedBaseTypes);
+        
+        if (!$isValidMimeType) {
+            throw new Exception("Invalid file type '{$mimeType}'. Only JPEG, PNG, and WebP images are allowed.");
         }
 
-        // Check file extension matches MIME type
+        // Check file extension matches MIME type (more lenient check)
         $extension = strtolower($file->getClientOriginalExtension());
         $validExtensions = [
             'image/jpeg' => ['jpg', 'jpeg'],
+            'image/jpg' => ['jpg', 'jpeg'], // Some systems report jpg as separate MIME type
             'image/png' => ['png'],
             'image/webp' => ['webp'],
         ];
 
-        if (!isset($validExtensions[$mimeType]) || !in_array($extension, $validExtensions[$mimeType])) {
-            throw new Exception('File extension does not match file type.');
+        // Normalize MIME type (jpeg and jpg are the same)
+        $normalizedMimeType = $mimeType;
+        if ($mimeType === 'image/jpg') {
+            $normalizedMimeType = 'image/jpeg';
+        }
+
+        // Check if extension is valid for the MIME type
+        $isValidExtension = false;
+        if (isset($validExtensions[$normalizedMimeType])) {
+            $isValidExtension = in_array($extension, $validExtensions[$normalizedMimeType]);
+        }
+        
+        // Also check if extension is in our allowed list (more lenient)
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        if (!$isValidExtension && in_array($extension, $allowedExtensions)) {
+            // If extension is valid but MIME type doesn't match exactly, log warning but allow
+            \Log::warning("Image upload: Extension '{$extension}' with MIME type '{$mimeType}' - allowing with warning");
+            $isValidExtension = true;
+        }
+
+        if (!$isValidExtension) {
+            throw new Exception("File extension '{$extension}' does not match file type '{$mimeType}'. Allowed: " . implode(', ', $allowedExtensions));
         }
 
         // Verify it's actually an image and check dimensions
@@ -134,13 +173,27 @@ class FileUploadService
 
             [$width, $height] = $imageInfo;
 
-            // Check minimum dimensions
-            if ($width < self::MIN_IMAGE_WIDTH || $height < self::MIN_IMAGE_HEIGHT) {
-                throw new Exception(
-                    'Image dimensions must be at least ' . 
-                    self::MIN_IMAGE_WIDTH . 'x' . self::MIN_IMAGE_HEIGHT . ' pixels. ' .
-                    "Your image is {$width}x{$height} pixels."
-                );
+            // Check minimum dimensions (relaxed for banners)
+            if ($relaxDimensions) {
+                // For banners, allow wider images (minimum 800x200)
+                $minWidth = 800;
+                $minHeight = 200;
+                if ($width < $minWidth || $height < $minHeight) {
+                    throw new Exception(
+                        'Banner image dimensions must be at least ' . 
+                        $minWidth . 'x' . $minHeight . ' pixels. ' .
+                        "Your image is {$width}x{$height} pixels."
+                    );
+                }
+            } else {
+                // For regular images, use standard minimum
+                if ($width < self::MIN_IMAGE_WIDTH || $height < self::MIN_IMAGE_HEIGHT) {
+                    throw new Exception(
+                        'Image dimensions must be at least ' . 
+                        self::MIN_IMAGE_WIDTH . 'x' . self::MIN_IMAGE_HEIGHT . ' pixels. ' .
+                        "Your image is {$width}x{$height} pixels."
+                    );
+                }
             }
 
             // Check maximum dimensions (prevent DOS)
@@ -283,7 +336,98 @@ class FileUploadService
     {
         return Storage::disk($disk)->exists($path);
     }
+
+    /**
+     * Upload APK file with security checks
+     *
+     * @param UploadedFile $file
+     * @return string The path to the uploaded file
+     * @throws Exception
+     */
+    public function uploadApk(UploadedFile $file): string
+    {
+        // Validate APK file
+        $this->validateApk($file);
+
+        // Generate secure filename (keep .apk extension)
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeName = Str::slug($originalName);
+        $safeName = Str::limit($safeName, 50, '');
+        $filename = $safeName . '-' . time() . '.apk';
+
+        // Define storage path
+        $directory = "app-downloads";
+        $path = "{$directory}/{$filename}";
+
+        // Ensure directory exists
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
+
+        // Store file in public storage
+        $stored = Storage::disk('public')->putFileAs($directory, $file, $filename);
+        
+        if (!$stored) {
+            throw new Exception('Failed to store APK file in storage.');
+        }
+
+        // Verify file exists after upload
+        if (!Storage::disk('public')->exists($path)) {
+            throw new Exception('APK file was not saved correctly. Please try again.');
+        }
+
+        return $path;
+    }
+
+    /**
+     * Validate uploaded APK file
+     *
+     * @param UploadedFile $file
+     * @throws Exception
+     */
+    private function validateApk(UploadedFile $file): void
+    {
+        // Check if file was uploaded successfully
+        if (!$file->isValid()) {
+            throw new Exception('APK file upload failed. Please try again.');
+        }
+
+        // Check file size (100MB max for APK files)
+        $maxSize = 100 * 1024 * 1024; // 100MB
+        if ($file->getSize() > $maxSize) {
+            throw new Exception('APK file size exceeds maximum allowed size of 100MB.');
+        }
+
+        // Check file extension
+        $extension = strtolower($file->getClientOriginalExtension());
+        if ($extension !== 'apk') {
+            throw new Exception('Invalid file type. Only APK files are allowed.');
+        }
+
+        // Check MIME type (APK files can have different MIME types)
+        $allowedMimeTypes = [
+            'application/vnd.android.package-archive',
+            'application/octet-stream',
+            'application/zip',
+        ];
+
+        $mimeType = $file->getMimeType();
+        if (!in_array($mimeType, $allowedMimeTypes)) {
+            // Still allow if extension is .apk (some servers may report different MIME types)
+            if ($extension === 'apk') {
+                // Allow it but log a warning
+                \Log::warning("APK file uploaded with unexpected MIME type: {$mimeType}");
+            } else {
+                throw new Exception('Invalid file type. Only APK files are allowed.');
+            }
+        }
+    }
 }
+
+
+
+
+
 
 
 

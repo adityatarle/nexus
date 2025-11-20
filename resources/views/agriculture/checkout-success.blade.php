@@ -12,8 +12,14 @@
                 <div class="success-icon mb-4">
                     <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
                 </div>
-                <h2 class="text-success mb-3">Order Confirmed!</h2>
-                <p class="lead text-muted">Thank you for your purchase. Your agriculture equipment order has been successfully placed.</p>
+                <h2 class="text-success mb-3">Inquiry Received!</h2>
+                <p class="lead text-muted mb-4">
+                    Thank you for your interest! We have received your inquiry and our team will contact you shortly to confirm your order details.
+                </p>
+                <div class="alert alert-info">
+                    <i class="fas fa-phone me-2"></i>
+                    <strong>What happens next?</strong> We'll reach out to you via phone or email within 24 hours to discuss your requirements and finalize the order.
+                </div>
             </div>
 
             <!-- Order Details -->
@@ -47,10 +53,10 @@
                             @endif
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-muted">Order Status</h6>
-                            <span class="badge badge-warning badge-lg">{{ ucfirst($order->order_status) }}</span>
+                            <h6 class="text-muted">Inquiry Status</h6>
+                            <span class="badge badge-info badge-lg">Inquiry Received</span>
                             <br>
-                            <small class="text-muted mt-2 d-block">Payment: {{ ucfirst($order->payment_status) }}</small>
+                            <small class="text-muted mt-2 d-block">We'll contact you soon to confirm</small>
                         </div>
                     </div>
                 </div>
@@ -81,8 +87,8 @@
                                     </td>
                                     <td>{{ $item->product_sku }}</td>
                                     <td>{{ $item->quantity }}</td>
-                                    <td>${{ number_format($item->price, 2) }}</td>
-                                    <td>${{ number_format($item->total, 2) }}</td>
+                                    <td>{{ $currencySymbol ?? '₹' }}{{ number_format($item->price, 2) }}</td>
+                                    <td>{{ $currencySymbol ?? '₹' }}{{ number_format($item->total, 2) }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -97,11 +103,11 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h6 class="text-muted">Billing Address</h6>
-                            <p class="mb-0">{{ $order->billing_address }}</p>
+                            <p class="mb-0">{{ is_array($order->billing_address) ? ($order->billing_address['address'] ?? implode(', ', $order->billing_address)) : $order->billing_address }}</p>
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-muted">Shipping Address</h6>
-                            <p class="mb-0">{{ $order->shipping_address }}</p>
+                            <p class="mb-0">{{ is_array($order->shipping_address) ? ($order->shipping_address['address'] ?? implode(', ', $order->shipping_address)) : $order->shipping_address }}</p>
                         </div>
                     </div>
 
@@ -111,21 +117,21 @@
                         <div class="col-md-8">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span>${{ number_format($order->subtotal, 2) }}</span>
+                                <span>{{ $currencySymbol ?? '₹' }}{{ number_format($order->subtotal, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Tax:</span>
-                                <span>${{ number_format($order->tax_amount, 2) }}</span>
+                                <span>{{ $currencySymbol ?? '₹' }}{{ number_format($order->tax_amount, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Shipping:</span>
-                                <span>${{ number_format($order->shipping_amount, 2) }}</span>
+                                <span>{{ $currencySymbol ?? '₹' }}{{ number_format($order->shipping_amount, 2) }}</span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="text-right">
                                 <h5 class="text-success mb-0">
-                                    Total: ${{ number_format($order->total_amount, 2) }}
+                                    Total: {{ $currencySymbol ?? '₹' }}{{ number_format($order->total_amount, 2) }}
                                 </h5>
                             </div>
                         </div>
@@ -137,28 +143,28 @@
             <div class="card mt-4">
                 <div class="card-body">
                     <h5 class="text-primary mb-3">
-                        <i class="fas fa-info-circle me-2"></i>What's Next?
+                        <i class="fas fa-info-circle me-2"></i>What Happens Next?
                     </h5>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="text-center p-3">
-                                <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
-                                <h6>Email Confirmation</h6>
-                                <small class="text-muted">We'll send you an email confirmation shortly</small>
+                                <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+                                <h6>We'll Contact You</h6>
+                                <small class="text-muted">Our team will call you within 24 hours to confirm your order</small>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="text-center p-3">
-                                <i class="fas fa-truck fa-2x text-primary mb-2"></i>
-                                <h6>Processing</h6>
-                                <small class="text-muted">Your order will be processed within 1-2 business days</small>
+                                <i class="fas fa-handshake fa-2x text-primary mb-2"></i>
+                                <h6>Confirm Details</h6>
+                                <small class="text-muted">We'll discuss your requirements and finalize the order</small>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="text-center p-3">
-                                <i class="fas fa-shipping-fast fa-2x text-primary mb-2"></i>
-                                <h6>Delivery</h6>
-                                <small class="text-muted">Expected delivery: 3-5 business days</small>
+                                <i class="fas fa-check-double fa-2x text-primary mb-2"></i>
+                                <h6>Order Confirmation</h6>
+                                <small class="text-muted">Once confirmed, we'll process and deliver your order</small>
                             </div>
                         </div>
                     </div>

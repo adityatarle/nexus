@@ -40,7 +40,8 @@ class AgricultureProduct extends Model
         'model',
         'power_source',
         'warranty',
-        'agriculture_category_id'
+        'agriculture_category_id',
+        'agriculture_subcategory_id'
     ];
 
     protected $casts = [
@@ -71,9 +72,23 @@ class AgricultureProduct extends Model
         });
     }
 
+    /**
+     * Get the route key for the model.
+     * This allows route model binding to use 'slug' instead of 'id'
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public function category()
     {
         return $this->belongsTo(AgricultureCategory::class, 'agriculture_category_id');
+    }
+
+    public function subcategory()
+    {
+        return $this->belongsTo(AgricultureSubcategory::class, 'agriculture_subcategory_id');
     }
 
     public function orderItems()
@@ -169,6 +184,11 @@ class AgricultureProduct extends Model
     public function scopeByCategory($query, $categoryId)
     {
         return $query->where('agriculture_category_id', $categoryId);
+    }
+
+    public function scopeBySubcategory($query, $subcategoryId)
+    {
+        return $query->where('agriculture_subcategory_id', $subcategoryId);
     }
 
     public function scopeByBrand($query, $brand)

@@ -73,7 +73,7 @@
                             <td>{{ $customer->email }}</td>
                             <td>{{ $customer->phone ?? 'N/A' }}</td>
                             <td>
-                                <span class="badge bg-primary">{{ $customer->agriculture_orders_count }}</span>
+                                <span class="badge bg-primary">{{ $customer->agriculture_orders_count ?? 0 }}</span>
                             </td>
                             <td>₹{{ number_format($customer->agricultureOrders->sum('total_amount'), 2) }}</td>
                             <td>{{ $customer->created_at->format('M d, Y') }}</td>
@@ -97,6 +97,14 @@
     </div>
 </div>
 @endsection
+
+
+
+
+
+
+
+
 
 
 

@@ -34,7 +34,7 @@
                                 <div class="col-md-4">
                                     <div class="cart-item-details">
                                         <h4 class="cart-item-name">{{ $item['name'] }}</h4>
-                                        <p class="cart-item-price">${{ number_format($item['price'], 2) }}</p>
+                                        <p class="cart-item-price">{{ $currencySymbol ?? '₹' }}{{ number_format($item['price'], 2) }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -53,7 +53,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="cart-item-total">
-                                        <strong>${{ number_format($item['price'] * $item['quantity'], 2) }}</strong>
+                                        <strong>{{ $currencySymbol ?? '₹' }}{{ number_format($item['price'] * $item['quantity'], 2) }}</strong>
                                     </div>
                                 </div>
                                 <div class="col-md-1">
@@ -96,7 +96,7 @@
                         <div class="card-body">
                             <div class="summary-row">
                                 <span>Subtotal:</span>
-                                <span>${{ number_format($cartTotal, 2) }}</span>
+                                <span>{{ $currencySymbol ?? '₹' }}{{ number_format($cartTotal, 2) }}</span>
                             </div>
                             <div class="summary-row">
                                 <span>Shipping:</span>
@@ -104,16 +104,16 @@
                             </div>
                             <div class="summary-row">
                                 <span>Tax:</span>
-                                <span>$0.00</span>
+                                <span>{{ $currencySymbol ?? '₹' }}0.00</span>
                             </div>
                             <hr>
                             <div class="summary-row total">
                                 <span><strong>Total:</strong></span>
-                                <span><strong>${{ number_format($cartTotal, 2) }}</strong></span>
+                                <span><strong>{{ $currencySymbol ?? '₹' }}{{ number_format($cartTotal, 2) }}</strong></span>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="#" class="btn btn-primary btn-lg w-100" onclick="alert('Checkout functionality coming soon!')">Proceed to Checkout</a>
+                            <a href="#" class="btn btn-primary btn-lg w-100" onclick="showAlert('Checkout functionality coming soon!', 'info', 'Coming Soon')">Proceed to Checkout</a>
                         </div>
                     </div>
                 </div>

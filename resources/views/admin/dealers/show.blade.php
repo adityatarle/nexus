@@ -188,11 +188,17 @@
                         <strong>Account Created:</strong><br>
                         <span class="text-muted">{{ $dealerRegistration->user->created_at->format('M d, Y') }}</span>
                     </div>
+                    @if($dealerRegistration->user && $dealerRegistration->user->id)
                     <div class="d-grid">
-                        <a href="{{ route('admin.dealers.profile', $dealerRegistration->user) }}" class="btn btn-outline-primary">
+                        <a href="{{ route('admin.dealers.profile', $dealerRegistration->user->id) }}" class="btn btn-outline-primary">
                             <i class="fas fa-user"></i> View Profile
                         </a>
                     </div>
+                    @else
+                    <div class="alert alert-warning">
+                        <small>User account not found</small>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -319,6 +325,14 @@ function rejectRegistration(registrationId) {
 }
 </script>
 @endpush
+
+
+
+
+
+
+
+
 
 
 

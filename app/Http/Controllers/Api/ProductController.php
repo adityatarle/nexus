@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AgricultureProduct;
+use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -13,11 +14,16 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = AgricultureProduct::active()->inStock()->with('category');
+        $query = AgricultureProduct::active()->inStock()->with(['category', 'subcategory']);
         
         // Filter by category
         if ($request->filled('category_id')) {
             $query->byCategory($request->category_id);
+        }
+        
+        // Filter by subcategory
+        if ($request->filled('subcategory_id')) {
+            $query->bySubcategory($request->subcategory_id);
         }
         
         // Filter by brand
@@ -124,7 +130,7 @@ class ProductController extends Controller
 
         $searchTerm = $request->q;
         
-        $query = AgricultureProduct::active()->inStock()->with('category')
+        $query = AgricultureProduct::active()->inStock()->with(['category', 'subcategory'])
             ->where(function($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
                   ->orWhere('description', 'like', "%{$searchTerm}%")
@@ -151,17 +157,38 @@ class ProductController extends Controller
 
     /**
      * Get single product details
+     * Supports both ID and slug for route model binding
      */
-    public function show(AgricultureProduct $product, Request $request)
+    public function show(Request $request, $product)
     {
-        if (!$product->is_active) {
+        // Try to find product by ID first (if numeric), then by slug
+        if (is_numeric($product)) {
+            $productModel = AgricultureProduct::with(['category', 'subcategory'])
+                ->where('id', $product)
+                ->first();
+        } else {
+            $productModel = AgricultureProduct::with(['category', 'subcategory'])
+                ->where('slug', $product)
+                ->first();
+        }
+        
+        if (!$productModel) {
             return response()->json([
                 'success' => false,
                 'message' => 'Product not found'
             ], 404);
         }
+        
+        if (!$productModel->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found'
+            ], 404);
+        }
+        
+        $product = $productModel;
 
-        $product->load('category');
+        $product->load(['category', 'subcategory']);
         
         // Get authenticated user (optional - for dealer pricing)
         $user = $this->getAuthenticatedUser($request);
@@ -191,7 +218,7 @@ class ProductController extends Controller
      */
     public function featured(Request $request)
     {
-        $query = AgricultureProduct::active()->inStock()->featured()->with('category');
+        $query = AgricultureProduct::active()->inStock()->featured()->with(['category', 'subcategory']);
         
         $limit = $request->get('limit', 10);
         $products = $query->limit($limit)->get();
@@ -215,12 +242,6 @@ class ProductController extends Controller
      */
     private function transformProduct($product, $user = null)
     {
-        // Get the appropriate image
-        $image = $product->primary_image 
-            ?? $product->featured_image 
-            ?? (is_array($product->gallery_images) && count($product->gallery_images) ? $product->gallery_images[0] : null)
-            ?? (is_array($product->images) && count($product->images) ? $product->images[0] : null);
-        
         // Get price based on user role
         $price = $product->getPriceForUser($user);
         $originalPrice = $user && $user->canAccessDealerPricing() 
@@ -233,6 +254,19 @@ class ProductController extends Controller
             $decodedGallery = json_decode($galleryImages, true);
             $galleryImages = is_array($decodedGallery) ? $decodedGallery : [];
         }
+
+        // Use ImageHelper for consistent image URL generation with full URLs
+        // This ensures mobile apps get absolute URLs with fallback mechanisms
+        $mainImageUrl = ImageHelper::productImageUrl($product);
+        
+        // Convert relative URLs to absolute URLs for mobile apps
+        $mainImageUrl = $this->ensureAbsoluteUrl($mainImageUrl);
+        
+        // Transform gallery images with full URLs
+        $galleryImageUrls = ImageHelper::galleryImageUrls($galleryImages);
+        $galleryImageUrls = array_map(function($url) {
+            return $this->ensureAbsoluteUrl($url);
+        }, $galleryImageUrls);
 
         return [
             'id' => $product->id,
@@ -250,10 +284,8 @@ class ProductController extends Controller
             'stock_quantity' => $product->stock_quantity,
             'in_stock' => $product->in_stock,
             'is_featured' => $product->is_featured,
-            'image' => $image ? asset('storage/' . $image) : asset('assets/organic/images/product-thumb-1.png'),
-            'images' => array_map(function($img) {
-                return asset('storage/' . $img);
-            }, $galleryImages),
+            'image' => $mainImageUrl, // Full absolute URL with cache buster
+            'images' => $galleryImageUrls, // Array of full absolute URLs
             'brand' => $product->brand,
             'model' => $product->model,
             'power_source' => $product->power_source,
@@ -265,9 +297,40 @@ class ProductController extends Controller
                 'name' => $product->category->name ?? null,
                 'slug' => $product->category->slug ?? null,
             ],
+            'subcategory' => $product->subcategory ? [
+                'id' => $product->subcategory->id,
+                'name' => $product->subcategory->name,
+                'slug' => $product->subcategory->slug,
+            ] : null,
             'created_at' => $product->created_at->toISOString(),
             'updated_at' => $product->updated_at->toISOString(),
         ];
+    }
+
+    /**
+     * Ensure URL is absolute (full URL) for mobile apps
+     * 
+     * @param string $url
+     * @return string
+     */
+    private function ensureAbsoluteUrl(string $url): string
+    {
+        // If already absolute URL (starts with http:// or https://), return as is
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return $url;
+        }
+        
+        // If relative URL, convert to absolute using APP_URL
+        $baseUrl = config('app.url');
+        
+        // Remove trailing slash from base URL
+        $baseUrl = rtrim($baseUrl, '/');
+        
+        // Remove leading slash from relative URL
+        $url = ltrim($url, '/');
+        
+        // Combine to create absolute URL
+        return $baseUrl . '/' . $url;
     }
 }
 

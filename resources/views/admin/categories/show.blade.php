@@ -38,11 +38,60 @@
                     <small class="text-muted d-block">Created</small>
                     <span>{{ $category->created_at->format('M d, Y') }}</span>
                 </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">Subcategories</small>
+                    <span class="badge bg-info">{{ $category->subcategories()->count() }} subcategories</span>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="col-lg-8">
+        @if($category->subcategories()->count() > 0)
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Subcategories</h5>
+                <a href="{{ route('admin.subcategories.create', ['category_id' => $category->id]) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add Subcategory
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Products</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($category->subcategories as $subcategory)
+                            <tr>
+                                <td>{{ $subcategory->name }}</td>
+                                <td><span class="badge bg-info">{{ $subcategory->products()->count() }}</span></td>
+                                <td>
+                                    <span class="badge bg-{{ $subcategory->is_active ? 'success' : 'secondary' }}">
+                                        {{ $subcategory->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.subcategories.show', $subcategory) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.subcategories.edit', $subcategory) }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Products in {{ $category->name }}</h5>
@@ -78,7 +127,7 @@
                                     </div>
                                 </td>
                                 <td>{{ $product->sku }}</td>
-                                <td>${{ number_format($product->current_price, 2) }}</td>
+                                <td>{{ $currencySymbol ?? '₹' }}{{ number_format($product->current_price, 2) }}</td>
                                 <td>
                                     <span class="badge bg-{{ $product->stock_quantity < 10 ? 'warning' : 'success' }}">
                                         {{ $product->stock_quantity }}

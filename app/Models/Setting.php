@@ -30,7 +30,21 @@ class Setting extends Model
     {
         return Cache::remember("setting_{$key}", 3600, function () use ($key, $default) {
             $setting = self::where('key', $key)->first();
-            return $setting ? $setting->value : $default;
+            if (!$setting) {
+                return $default;
+            }
+            
+            // If value is cast as array but we need string, get raw value
+            $value = $setting->getRawOriginal('value');
+            
+            // If it's a JSON string, decode it; otherwise return as string
+            if (is_string($value) && $setting->type === 'json') {
+                $decoded = json_decode($value, true);
+                return $decoded !== null ? $decoded : $value;
+            }
+            
+            // For non-JSON types, return as string
+            return is_string($value) ? $value : ($setting->value ?? $default);
         });
     }
 
@@ -65,6 +79,11 @@ class Setting extends Model
         Cache::flush();
     }
 }
+
+
+
+
+
 
 
 

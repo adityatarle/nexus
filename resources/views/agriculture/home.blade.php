@@ -13,7 +13,7 @@
                 <p class="hero-subtitle">Discover the latest farming machinery, equipment, and supplies to boost your agricultural productivity</p>
                 <div class="hero-buttons">
                     <a href="{{ route('agriculture.products.index') }}" class="btn btn-primary btn-lg">Shop Equipment</a>
-                    <a href="#" class="btn btn-outline-primary btn-lg" onclick="alert('About page coming soon!')">Learn More</a>
+                    <a href="#" class="btn btn-outline-primary btn-lg" onclick="showAlert('About page coming soon!', 'info', 'Coming Soon')">Learn More</a>
                 </div>
             </div>
             <div class="col-lg-6">

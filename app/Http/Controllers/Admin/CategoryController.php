@@ -27,7 +27,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:agriculture_categories,name',
             'description' => 'nullable|string',
             'image' => 'nullable|string',
             'icon' => 'nullable|string',
@@ -35,23 +35,40 @@ class CategoryController extends Controller
             'sort_order' => 'integer|min:0'
         ]);
 
-        $category = AgricultureCategory::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'description' => $request->description,
-            'image' => $request->image,
-            'icon' => $request->icon,
-            'is_active' => $request->has('is_active'),
-            'sort_order' => $request->sort_order ?? 0
-        ]);
+        try {
+            $baseSlug = Str::slug($request->name);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (AgricultureCategory::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category created successfully!');
+            $category = AgricultureCategory::create([
+                'name' => $request->name,
+                'slug' => $slug,
+                'description' => $request->description,
+                'image' => $request->image,
+                'icon' => $request->icon,
+                'is_active' => $request->has('is_active'),
+                'sort_order' => $request->sort_order ?? 0
+            ]);
+
+            return redirect()->route('admin.categories.index')
+                ->with('success', 'Category created successfully!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) { // Integrity constraint violation
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['name' => 'A category with this name already exists. Please choose a different name.']);
+            }
+            throw $e;
+        }
     }
 
     public function show(AgricultureCategory $category)
     {
-        $category->load('products');
+        $category->load(['products', 'subcategories']);
         return view('admin.categories.show', compact('category'));
     }
 
@@ -63,7 +80,7 @@ class CategoryController extends Controller
     public function update(Request $request, AgricultureCategory $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:agriculture_categories,name,' . $category->id,
             'description' => 'nullable|string',
             'image' => 'nullable|string',
             'icon' => 'nullable|string',
@@ -71,25 +88,56 @@ class CategoryController extends Controller
             'sort_order' => 'integer|min:0'
         ]);
 
-        $category->update([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'description' => $request->description,
-            'image' => $request->image,
-            'icon' => $request->icon,
-            'is_active' => $request->has('is_active'),
-            'sort_order' => $request->sort_order ?? 0
-        ]);
+        try {
+            $baseSlug = Str::slug($request->name);
+            $slug = $baseSlug;
+            if ($slug !== $category->slug) {
+                $counter = 1;
+                while (AgricultureCategory::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+            }
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category updated successfully!');
+            $category->update([
+                'name' => $request->name,
+                'slug' => $slug,
+                'description' => $request->description,
+                'image' => $request->image,
+                'icon' => $request->icon,
+                'is_active' => $request->has('is_active'),
+                'sort_order' => $request->sort_order ?? 0
+            ]);
+
+            return redirect()->route('admin.categories.index')
+                ->with('success', 'Category updated successfully!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['name' => 'A category with this name already exists. Please choose a different name.']);
+            }
+            throw $e;
+        }
     }
 
     public function destroy(AgricultureCategory $category)
     {
-        if ($category->products()->count() > 0) {
+        $productCount = $category->products()->count();
+        $subcategoryCount = $category->subcategories()->count();
+        
+        if ($productCount > 0 || $subcategoryCount > 0) {
+            $messages = [];
+            if ($productCount > 0) {
+                $messages[] = "This category has {$productCount} product(s).";
+            }
+            if ($subcategoryCount > 0) {
+                $messages[] = "This category has {$subcategoryCount} subcategory(ies).";
+            }
+            $messages[] = "Please move or delete them first before deleting this category.";
+            
             return redirect()->back()
-                ->with('error', 'Cannot delete category with products. Please move or delete products first.');
+                ->with('error', implode(' ', $messages));
         }
 
         $category->delete();

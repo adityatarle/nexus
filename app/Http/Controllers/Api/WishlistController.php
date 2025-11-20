@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
 use App\Models\AgricultureProduct;
+use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 
 class WishlistController extends Controller
@@ -115,12 +116,11 @@ class WishlistController extends Controller
      */
     private function transformProduct($product, $user = null)
     {
-        $image = $product->primary_image 
-            ?? $product->featured_image 
-            ?? (is_array($product->gallery_images) && count($product->gallery_images) ? $product->gallery_images[0] : null)
-            ?? (is_array($product->images) && count($product->images) ? $product->images[0] : null);
-        
         $price = $product->getPriceForUser($user);
+        
+        // Use ImageHelper for consistent image URLs with fallback mechanisms
+        $imageUrl = ImageHelper::productImageUrl($product);
+        $imageUrl = $this->ensureAbsoluteUrl($imageUrl);
         
         return [
             'id' => $product->id,
@@ -132,12 +132,38 @@ class WishlistController extends Controller
             'discount_percentage' => $product->discount_percentage,
             'stock_quantity' => $product->stock_quantity,
             'in_stock' => $product->in_stock,
-            'image' => $image ? asset('storage/' . $image) : asset('assets/organic/images/product-thumb-1.png'),
+            'image' => $imageUrl, // Full absolute URL with cache buster
             'category' => [
                 'id' => $product->category->id ?? null,
                 'name' => $product->category->name ?? null,
             ],
         ];
+    }
+    
+    /**
+     * Ensure URL is absolute (full URL) for mobile apps
+     * 
+     * @param string $url
+     * @return string
+     */
+    private function ensureAbsoluteUrl(string $url): string
+    {
+        // If already absolute URL (starts with http:// or https://), return as is
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return $url;
+        }
+        
+        // If relative URL, convert to absolute using APP_URL
+        $baseUrl = config('app.url');
+        
+        // Remove trailing slash from base URL
+        $baseUrl = rtrim($baseUrl, '/');
+        
+        // Remove leading slash from relative URL
+        $url = ltrim($url, '/');
+        
+        // Combine to create absolute URL
+        return $baseUrl . '/' . $url;
     }
 }
 

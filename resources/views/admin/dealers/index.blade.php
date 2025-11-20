@@ -139,6 +139,11 @@
                             <td>
                                 <div>{{ $registration->contact_person }}</div>
                                 <small class="text-muted">{{ $registration->contact_email }}</small>
+                                @if($registration->contact_phone)
+                                <br><small class="text-muted">
+                                    <i class="fas fa-phone me-1"></i>{{ $registration->contact_phone }}
+                                </small>
+                                @endif
                             </td>
                             <td>
                                 <code>{{ $registration->gst_number }}</code>
@@ -278,6 +283,13 @@ function rejectRegistration(registrationId) {
 }
 </script>
 @endpush
+
+
+
+
+
+
+
 
 
 

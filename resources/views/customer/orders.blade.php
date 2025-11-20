@@ -65,8 +65,9 @@
                         <div class="col-md-4">
                             <select name="status" class="form-select">
                                 <option value="">All Status</option>
+                                <option value="inquiry" {{ request('status') == 'inquiry' ? 'selected' : '' }}>Inquiry</option>
                                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
                                 <option value="shipped" {{ request('status') == 'shipped' ? 'selected' : '' }}>Shipped</option>
                                 <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
                                 <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
@@ -96,15 +97,22 @@
                             <div>
                                 @php
                                     $statusColors = [
+                                        'inquiry' => 'info',
                                         'pending' => 'warning',
-                                        'confirmed' => 'info',
-                                        'shipped' => 'primary',
+                                        'processing' => 'primary',
+                                        'shipped' => 'info',
                                         'delivered' => 'success',
                                         'cancelled' => 'danger'
                                     ];
                                     $color = $statusColors[$order->order_status] ?? 'secondary';
                                 @endphp
-                                <span class="badge bg-{{ $color }}">{{ ucfirst($order->order_status) }}</span>
+                                <span class="badge bg-{{ $color }}">
+                                    @if($order->order_status === 'inquiry')
+                                        <i class="fas fa-question-circle me-1"></i>Inquiry
+                                    @else
+                                        {{ ucfirst($order->order_status) }}
+                                    @endif
+                                </span>
                             </div>
                         </div>
                         <div class="card-body">
@@ -153,6 +161,9 @@
     </div>
 </div>
 @endsection
+
+
+
 
 
 

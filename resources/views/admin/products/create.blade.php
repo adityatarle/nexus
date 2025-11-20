@@ -182,6 +182,26 @@
                                 @enderror
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="agriculture_subcategory_id" class="form-label">Subcategory (Optional)</label>
+                                <select class="form-select @error('agriculture_subcategory_id') is-invalid @enderror" 
+                                        id="agriculture_subcategory_id" name="agriculture_subcategory_id">
+                                    <option value="">Select Subcategory</option>
+                                    @foreach($subcategories as $subcategory)
+                                    <option value="{{ $subcategory->id }}" 
+                                            data-category-id="{{ $subcategory->agriculture_category_id }}"
+                                            {{ old('agriculture_subcategory_id') == $subcategory->id ? 'selected' : '' }}>
+                                        {{ $subcategory->name }} ({{ $subcategory->category->name ?? '' }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @error('agriculture_subcategory_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Select a category first to filter subcategories</small>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -389,7 +409,7 @@ document.getElementById('primary_image').addEventListener('change', function(e) 
     if (file) {
         // Validate file size (2MB)
         if (file.size > 2 * 1024 * 1024) {
-            alert('File size must not exceed 2MB');
+            showAlert('File size must not exceed 2MB', 'error', 'File Too Large');
             e.target.value = '';
             return;
         }
@@ -397,7 +417,7 @@ document.getElementById('primary_image').addEventListener('change', function(e) 
         // Validate file type
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
         if (!validTypes.includes(file.type)) {
-            alert('Please select a valid image file (JPEG, PNG, or WebP)');
+            showAlert('Please select a valid image file (JPEG, PNG, or WebP)', 'error', 'Invalid File Type');
             e.target.value = '';
             return;
         }
@@ -424,7 +444,7 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
     
     // Validate number of files
     if (files.length > 5) {
-        alert('You can upload maximum 5 gallery images');
+        showAlert('You can upload maximum 5 gallery images', 'warning', 'Too Many Files');
         e.target.value = '';
         return;
     }
@@ -432,7 +452,7 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
     files.forEach((file, index) => {
         // Validate file size (2MB)
         if (file.size > 2 * 1024 * 1024) {
-            alert(`File ${index + 1} size must not exceed 2MB`);
+            showAlert(`File ${index + 1} size must not exceed 2MB`, 'error', 'File Too Large');
             e.target.value = '';
             return;
         }
@@ -440,7 +460,7 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
         // Validate file type
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
         if (!validTypes.includes(file.type)) {
-            alert(`File ${index + 1} must be a valid image (JPEG, PNG, or WebP)`);
+            showAlert(`File ${index + 1} must be a valid image (JPEG, PNG, or WebP)`, 'error', 'Invalid File Type');
             e.target.value = '';
             return;
         }
@@ -476,6 +496,40 @@ function updatePriceInfo() {
     if (salePrice > 0 && price > 0) {
         const retailDiscount = ((price - salePrice) / price * 100).toFixed(1);
         info += `Retail sale: <strong>${retailDiscount}%</strong> off. `;
+    }
+    
+    // Filter subcategories based on selected category
+    document.getElementById('agriculture_category_id').addEventListener('change', function() {
+        const categoryId = this.value;
+        const subcategorySelect = document.getElementById('agriculture_subcategory_id');
+        const options = subcategorySelect.querySelectorAll('option');
+        
+        // Show/hide subcategories based on selected category
+        options.forEach(option => {
+            if (option.value === '') {
+                option.style.display = 'block'; // Always show the "Select Subcategory" option
+            } else {
+                const subcategoryCategoryId = option.getAttribute('data-category-id');
+                if (categoryId === '' || subcategoryCategoryId === categoryId) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        });
+        
+        // Reset subcategory selection if it doesn't belong to selected category
+        if (categoryId && subcategorySelect.value) {
+            const selectedOption = subcategorySelect.options[subcategorySelect.selectedIndex];
+            if (selectedOption.getAttribute('data-category-id') !== categoryId) {
+                subcategorySelect.value = '';
+            }
+        }
+    });
+    
+    // Trigger on page load if category is already selected
+    if (document.getElementById('agriculture_category_id').value) {
+        document.getElementById('agriculture_category_id').dispatchEvent(new Event('change'));
     }
     
     if (dealerSalePrice > 0 && dealerPrice > 0) {

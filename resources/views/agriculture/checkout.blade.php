@@ -47,29 +47,15 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group mb-3">
-                                    <label for="customer_phone">Phone Number</label>
+                                    <label for="customer_phone">Phone Number *</label>
                                     <input type="tel" class="form-control @error('customer_phone') is-invalid @enderror" 
-                                           id="customer_phone" name="customer_phone" value="{{ old('customer_phone') }}">
+                                           id="customer_phone" name="customer_phone" value="{{ old('customer_phone') }}" required>
                                     @error('customer_phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="payment_method">Payment Method *</label>
-                                    <select class="form-control @error('payment_method') is-invalid @enderror" 
-                                            id="payment_method" name="payment_method" required>
-                                        <option value="">Select Payment Method</option>
-                                        <option value="credit_card" {{ old('payment_method') == 'credit_card' ? 'selected' : '' }}>Credit Card</option>
-                                        <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
-                                        <option value="cash_on_delivery" {{ old('payment_method') == 'cash_on_delivery' ? 'selected' : '' }}>Cash on Delivery</option>
-                                    </select>
-                                    @error('payment_method')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <small class="form-text text-muted">We'll contact you on this number to confirm your order</small>
                                 </div>
                             </div>
                         </div>
@@ -105,13 +91,17 @@
                         <div class="form-check mb-3">
                             <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
                             <label class="form-check-label" for="terms">
-                                I agree to the <a href="#" onclick="alert('Terms and conditions coming soon!')">Terms and Conditions</a>
+                                I agree to the <a href="#" onclick="showAlert('Terms and conditions coming soon!', 'info', 'Coming Soon')">Terms and Conditions</a>
                             </label>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-credit-card me-2"></i>Complete Order
+                            <i class="fas fa-paper-plane me-2"></i>Submit Inquiry
                         </button>
+                        <p class="text-center text-muted mt-3 small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            By submitting, you agree that we will contact you to confirm your order details.
+                        </p>
                     </form>
                 </div>
             </div>
@@ -128,12 +118,15 @@
                         $cart = session('cart', []);
                         $subtotal = 0;
                         $taxRate = 0.08; // 8% tax
+                        $user = Auth::user(); // Get authenticated user for dealer pricing
                     @endphp
 
                     @foreach($cart as $item)
                         @php
                             $product = \App\Models\AgricultureProduct::find($item['product_id']);
-                            $itemTotal = $product->current_price * $item['quantity'];
+                            // Use getPriceForUser to ensure consistent pricing (handles dealer pricing)
+                            $price = $item['price'] ?? $product->getPriceForUser($user);
+                            $itemTotal = round($price * $item['quantity'], 2);
                             $subtotal += $itemTotal;
                         @endphp
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -141,32 +134,39 @@
                                 <h6 class="mb-0">{{ $product->name }}</h6>
                                 <small class="text-muted">Qty: {{ $item['quantity'] }}</small>
                             </div>
-                            <span class="font-weight-bold">${{ number_format($itemTotal, 2) }}</span>
+                            <span class="font-weight-bold">{{ $currencySymbol ?? '₹' }}{{ number_format($itemTotal, 2) }}</span>
                         </div>
                     @endforeach
 
                     <hr>
 
+                    @php
+                        $subtotal = round($subtotal, 2);
+                        $taxAmount = round($subtotal * $taxRate, 2);
+                        $shippingCost = 25;
+                        $totalAmount = round($subtotal + $taxAmount + $shippingCost, 2);
+                    @endphp
+                    
                     <div class="d-flex justify-content-between mb-2">
                         <span>Subtotal:</span>
-                        <span>${{ number_format($subtotal, 2) }}</span>
+                        <span>{{ $currencySymbol ?? '₹' }}{{ number_format($subtotal, 2) }}</span>
                     </div>
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span>Tax (8%):</span>
-                        <span>${{ number_format($subtotal * $taxRate, 2) }}</span>
+                        <span>{{ $currencySymbol ?? '₹' }}{{ number_format($taxAmount, 2) }}</span>
                     </div>
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span>Shipping:</span>
-                        <span>${{ number_format(25, 2) }}</span>
+                        <span>{{ $currencySymbol ?? '₹' }}{{ number_format($shippingCost, 2) }}</span>
                     </div>
 
                     <hr>
 
                     <div class="d-flex justify-content-between">
                         <strong>Total:</strong>
-                        <strong class="text-success">${{ number_format($subtotal + ($subtotal * $taxRate) + 25, 2) }}</strong>
+                        <strong class="text-success">{{ $currencySymbol ?? '₹' }}{{ number_format($totalAmount, 2) }}</strong>
                     </div>
                 </div>
             </div>

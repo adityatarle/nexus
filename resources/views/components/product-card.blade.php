@@ -5,20 +5,15 @@
     $salePrice = $isDealer ? ($product->dealer_sale_price ?? null) : ($product->sale_price ?? null);
     $currentPrice = $salePrice ?: $originalPrice;
     $discount = ($salePrice && $originalPrice && $salePrice < $originalPrice) ? round((($originalPrice - $salePrice) / $originalPrice) * 100) : 0;
+    
+    // Use ImageHelper to get image URL with automatic cache buster
+    $imageUrl = \App\Helpers\ImageHelper::productImageUrl($product);
 @endphp
 
 <div class="card border-0 shadow-sm h-100">
     <a href="{{ route('agriculture.products.show', $product->slug) }}" class="text-decoration-none">
         <div class="position-relative overflow-hidden">
-            <img src="{{ $product->primary_image
-                ? asset('storage/' . $product->primary_image)
-                : ($product->featured_image
-                    ? asset('storage/' . $product->featured_image)
-                    : ((is_array($product->gallery_images) && count($product->gallery_images))
-                        ? asset('storage/' . $product->gallery_images[0])
-                        : ((is_array($product->images) && count($product->images))
-                            ? asset('storage/' . $product->images[0])
-                            : asset('assets/organic/images/product-thumb-1.png')))) }}" 
+            <img src="{{ $imageUrl }}" 
                  alt="{{ $product->name }}" 
                  class="card-img-top"
                  style="height: 200px; object-fit: cover;">

@@ -5,31 +5,47 @@
 
 @section('content')
 <div class="container-lg py-4">
+    @php
+        $mainImageUrl = \App\Helpers\ImageHelper::productImageUrl($product);
+    @endphp
     <div class="row">
         <!-- Product Images -->
         <div class="col-lg-6">
             <div class="product-image-main mb-4">
-                <img src="{{ $product->primary_image
-                    ? asset('storage/' . $product->primary_image)
-                    : ($product->featured_image
-                        ? asset('storage/' . $product->featured_image)
-                        : ((is_array($product->gallery_images) && count($product->gallery_images))
-                            ? asset('storage/' . $product->gallery_images[0])
-                            : ((is_array($product->images) && count($product->images))
-                                ? asset('storage/' . $product->images[0])
-                                : asset('assets/organic/images/product-thumb-1.png')))) }}" 
+                <img id="mainProductImage" src="{{ $mainImageUrl }}" 
                      alt="{{ $product->name }}" class="img-fluid rounded">
                 @if($product->sale_price)
                 <span class="badge bg-danger position-absolute top-0 end-0 m-3 fs-6">Sale</span>
                 @endif
             </div>
             
-            @if($product->images && count($product->images) > 0)
+            @php
+                // Get gallery images (handle both array and JSON)
+                $galleryImages = is_array($product->gallery_images)
+                    ? $product->gallery_images
+                    : (json_decode($product->gallery_images ?? '[]', true) ?? []);
+                
+                // Also check for primary image to include in gallery
+                $allImages = [];
+                if ($product->primary_image) {
+                    $allImages[] = $product->primary_image;
+                }
+                $allImages = array_merge($allImages, $galleryImages);
+            @endphp
+            
+            @if(!empty($allImages) && count($allImages) > 0)
             <div class="product-thumbnails">
                 <div class="row">
-                    @foreach($product->images as $image)
+                    @foreach($allImages as $index => $image)
                     <div class="col-3 mb-2">
-                        <img src="{{ asset('storage/' . $image) }}" alt="{{ $product->name }}" class="img-fluid rounded thumbnail">
+                        @php
+                            $thumbUrl = \App\Helpers\ImageHelper::imageUrl($image);
+                        @endphp
+                        <img src="{{ $thumbUrl }}" 
+                             alt="{{ $product->name }}" 
+                             class="img-fluid rounded thumbnail {{ $index === 0 ? 'active' : '' }}"
+                             data-image-url="{{ $thumbUrl }}"
+                             onclick="changeMainImage(this)">
                     </div>
                     @endforeach
                 </div>
@@ -51,9 +67,9 @@
                 <h1 class="product-title mb-3">{{ $product->name }}</h1>
                 
                 <div class="product-price mb-3">
-                    <span class="current-price fs-3 fw-bold text-primary">${{ number_format($product->current_price, 2) }}</span>
+                    <span class="current-price fs-3 fw-bold text-primary">{{ $currencySymbol ?? '₹' }}{{ number_format($product->current_price, 2) }}</span>
                     @if($product->sale_price)
-                    <span class="old-price fs-5 text-muted ms-2">${{ number_format($product->price, 2) }}</span>
+                    <span class="old-price fs-5 text-muted ms-2">{{ $currencySymbol ?? '₹' }}{{ number_format($product->price, 2) }}</span>
                     <span class="discount-badge badge bg-success ms-2">{{ $product->discount_percentage }}% OFF</span>
                     @endif
                 </div>
@@ -185,7 +201,10 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="product-card">
                         <div class="product-image">
-                            <img src="{{ $relatedProduct->featured_image ? asset('storage/' . $relatedProduct->featured_image) : asset('assets/organic/images/product-thumb-1.png') }}" 
+                            @php
+                                $relatedImageUrl = \App\Helpers\ImageHelper::productImageUrl($relatedProduct);
+                            @endphp
+                            <img src="{{ $relatedImageUrl }}" 
                                  alt="{{ $relatedProduct->name }}" class="img-fluid">
                         </div>
                         <div class="product-content">
@@ -193,9 +212,9 @@
                                 <a href="{{ route('agriculture.products.show', $relatedProduct) }}">{{ $relatedProduct->name }}</a>
                             </h5>
                             <div class="product-price">
-                                <span class="current-price">${{ number_format($relatedProduct->current_price, 2) }}</span>
+                                <span class="current-price">{{ $currencySymbol ?? '₹' }}{{ number_format($relatedProduct->current_price, 2) }}</span>
                                 @if($relatedProduct->sale_price)
-                                <span class="old-price">${{ number_format($relatedProduct->price, 2) }}</span>
+                                <span class="old-price">{{ $currencySymbol ?? '₹' }}{{ number_format($relatedProduct->price, 2) }}</span>
                                 @endif
                             </div>
                             <form action="{{ route('agriculture.cart.add') }}" method="POST" class="mt-2">
@@ -221,11 +240,19 @@
 
 .thumbnail {
     cursor: pointer;
-    transition: opacity 0.3s;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+    padding: 2px;
 }
 
 .thumbnail:hover {
     opacity: 0.7;
+    border-color: #007bff;
+}
+
+.thumbnail.active {
+    border-color: #007bff;
+    opacity: 1;
 }
 
 .product-title {
@@ -243,4 +270,21 @@
     background: #f8f9fa;
 }
 </style>
+
+<script>
+function changeMainImage(thumbnail) {
+    const mainImage = document.getElementById('mainProductImage');
+    const imageUrl = thumbnail.getAttribute('data-image-url');
+    
+    if (mainImage && imageUrl) {
+        mainImage.src = imageUrl;
+        
+        // Update active thumbnail
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.classList.remove('active');
+        });
+        thumbnail.classList.add('active');
+    }
+}
+</script>
 @endsection

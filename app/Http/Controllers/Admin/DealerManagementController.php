@@ -30,7 +30,8 @@ class DealerManagementController extends Controller
                 $q->where('business_name', 'like', "%{$searchTerm}%")
                   ->orWhere('gst_number', 'like', "%{$searchTerm}%")
                   ->orWhere('contact_person', 'like', "%{$searchTerm}%")
-                  ->orWhere('contact_email', 'like', "%{$searchTerm}%");
+                  ->orWhere('contact_email', 'like', "%{$searchTerm}%")
+                  ->orWhere('contact_phone', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -126,25 +127,42 @@ class DealerManagementController extends Controller
      */
     public function showDealerProfile(User $user)
     {
-        if (!$user->isDealer()) {
-            return redirect()->back()->with('error', 'This user is not a dealer.');
+        try {
+            if (!$user) {
+                return redirect()->route('admin.dealers.index')
+                    ->with('error', 'User not found.');
+            }
+
+            if (!$user->isDealer()) {
+                return redirect()->route('admin.dealers.index')
+                    ->with('error', 'This user is not a dealer.');
+            }
+
+            $user->load(['dealerRegistration', 'agricultureOrders.items.product']);
+            
+            $orders = $user->agricultureOrders()
+                ->with('items.product')
+                ->latest()
+                ->paginate(10);
+
+            $stats = [
+                'total_orders' => $user->agricultureOrders()->count(),
+                'total_spent' => $user->agricultureOrders()->sum('total_amount'),
+                'average_order_value' => $user->agricultureOrders()->avg('total_amount'),
+                'last_order_date' => $user->agricultureOrders()->latest()->first()?->created_at,
+            ];
+
+            return view('admin.dealers.profile', compact('user', 'orders', 'stats'));
+        } catch (\Exception $e) {
+            \Log::error('Error showing dealer profile', [
+                'user_id' => $user->id ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return redirect()->route('admin.dealers.index')
+                ->with('error', 'Error loading dealer profile: ' . $e->getMessage());
         }
-
-        $user->load(['dealerRegistration', 'agricultureOrders.items.product']);
-        
-        $orders = $user->agricultureOrders()
-            ->with('items.product')
-            ->latest()
-            ->paginate(10);
-
-        $stats = [
-            'total_orders' => $user->agricultureOrders()->count(),
-            'total_spent' => $user->agricultureOrders()->sum('total_amount'),
-            'average_order_value' => $user->agricultureOrders()->avg('total_amount'),
-            'last_order_date' => $user->agricultureOrders()->latest()->first()?->created_at,
-        ];
-
-        return view('admin.dealers.profile', compact('user', 'orders', 'stats'));
     }
 
     /**

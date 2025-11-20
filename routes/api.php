@@ -4,11 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\SubcategoryController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DealerController;
+use App\Http\Controllers\Api\OfferController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +25,16 @@ use App\Http\Controllers\Api\DealerController;
 
 // Public Routes
 Route::prefix('v1')->group(function () {
+    // Diagnostic endpoint to test if API is accessible
+    Route::get('/test', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'API is accessible',
+            'timestamp' => now()->toISOString(),
+            'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown'
+        ]);
+    });
+    
     // Authentication Routes
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -38,6 +50,16 @@ Route::prefix('v1')->group(function () {
     // Public Category Routes
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
+    
+    // Public Subcategory Routes
+    Route::get('/subcategories', [SubcategoryController::class, 'index']);
+    Route::get('/subcategories/{subcategory}', [SubcategoryController::class, 'show']);
+    
+    // Public Offer Routes
+    Route::get('/offers', [OfferController::class, 'index']);
+    Route::get('/offers/{offer}', [OfferController::class, 'show']);
+    Route::get('/offers/product/{productId}', [OfferController::class, 'forProduct']);
+    Route::post('/offers/calculate-discount', [OfferController::class, 'calculateDiscount']);
     
     // Protected Routes (require authentication)
     Route::middleware('auth:sanctum')->group(function () {

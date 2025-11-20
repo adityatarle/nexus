@@ -36,6 +36,11 @@ class AgricultureCategory extends Model
         return $this->hasMany(AgricultureProduct::class, 'agriculture_category_id');
     }
 
+    public function subcategories()
+    {
+        return $this->hasMany(AgricultureSubcategory::class, 'agriculture_category_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -44,5 +49,10 @@ class AgricultureCategory extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('sort_order')->orderBy('name');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 }

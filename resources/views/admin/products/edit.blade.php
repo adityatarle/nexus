@@ -48,7 +48,10 @@
                     <div class="mb-3">
                         <label class="form-label">Current Primary Image</label>
                         <div class="border rounded p-2 mb-2" style="max-width: 200px;">
-                            <img src="{{ asset('storage/' . $product->primary_image) }}" 
+                            @php
+                                $primaryImageUrl = \App\Helpers\ImageHelper::imageUrl($product->primary_image);
+                            @endphp
+                            <img src="{{ $primaryImageUrl }}" 
                                  alt="Primary Image" 
                                  class="img-fluid rounded">
                         </div>
@@ -84,7 +87,10 @@
                         <div class="d-flex gap-2 flex-wrap mb-2">
                             @foreach($galleryImages as $index => $image)
                             <div class="position-relative" style="width: 100px; height: 100px;">
-                                <img src="{{ asset('storage/' . $image) }}" 
+                                @php
+                                    $galleryImageUrl = \App\Helpers\ImageHelper::imageUrl($image);
+                                @endphp
+                                <img src="{{ $galleryImageUrl }}" 
                                      alt="Gallery {{ $index + 1 }}" 
                                      class="img-fluid rounded border"
                                      style="width: 100%; height: 100%; object-fit: cover;">
@@ -224,6 +230,26 @@
                                 @error('agriculture_category_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="agriculture_subcategory_id" class="form-label">Subcategory (Optional)</label>
+                                <select class="form-select @error('agriculture_subcategory_id') is-invalid @enderror" 
+                                        id="agriculture_subcategory_id" name="agriculture_subcategory_id">
+                                    <option value="">Select Subcategory</option>
+                                    @foreach($subcategories as $subcategory)
+                                    <option value="{{ $subcategory->id }}" 
+                                            data-category-id="{{ $subcategory->agriculture_category_id }}"
+                                            {{ old('agriculture_subcategory_id', $product->agriculture_subcategory_id) == $subcategory->id ? 'selected' : '' }}>
+                                        {{ $subcategory->name }} ({{ $subcategory->category->name ?? '' }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @error('agriculture_subcategory_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Select a category first to filter subcategories</small>
                             </div>
                         </div>
                     </div>
@@ -458,7 +484,7 @@ document.getElementById('primary_image').addEventListener('change', function(e) 
     if (file) {
         // Validate file size (2MB)
         if (file.size > 2 * 1024 * 1024) {
-            alert('File size must not exceed 2MB');
+            showAlert('File size must not exceed 2MB', 'error', 'File Too Large');
             e.target.value = '';
             return;
         }
@@ -466,7 +492,7 @@ document.getElementById('primary_image').addEventListener('change', function(e) 
         // Validate file type
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
         if (!validTypes.includes(file.type)) {
-            alert('Please select a valid image file (JPEG, PNG, or WebP)');
+            showAlert('Please select a valid image file (JPEG, PNG, or WebP)', 'error', 'Invalid File Type');
             e.target.value = '';
             return;
         }
@@ -498,7 +524,7 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
     
     // Validate number of files
     if (files.length > maxAllowed) {
-        alert(`You can only add ${maxAllowed} more gallery images (current: ${currentCount}, max: 5)`);
+        showAlert(`You can only add ${maxAllowed} more gallery images (current: ${currentCount}, max: 5)`, 'warning', 'Too Many Files');
         e.target.value = '';
         return;
     }
@@ -506,7 +532,7 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
     files.forEach((file, index) => {
         // Validate file size (2MB)
         if (file.size > 2 * 1024 * 1024) {
-            alert(`File ${index + 1} size must not exceed 2MB`);
+            showAlert(`File ${index + 1} size must not exceed 2MB`, 'error', 'File Too Large');
             e.target.value = '';
             return;
         }
@@ -514,7 +540,7 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
         // Validate file type
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
         if (!validTypes.includes(file.type)) {
-            alert(`File ${index + 1} must be a valid image (JPEG, PNG, or WebP)`);
+            showAlert(`File ${index + 1} must be a valid image (JPEG, PNG, or WebP)`, 'error', 'Invalid File Type');
             e.target.value = '';
             return;
         }
@@ -600,5 +626,39 @@ function updatePriceInfo() {
 
 // Initialize price info on load
 updatePriceInfo();
+
+// Filter subcategories based on selected category
+document.getElementById('agriculture_category_id').addEventListener('change', function() {
+    const categoryId = this.value;
+    const subcategorySelect = document.getElementById('agriculture_subcategory_id');
+    const options = subcategorySelect.querySelectorAll('option');
+    
+    // Show/hide subcategories based on selected category
+    options.forEach(option => {
+        if (option.value === '') {
+            option.style.display = 'block'; // Always show the "Select Subcategory" option
+        } else {
+            const subcategoryCategoryId = option.getAttribute('data-category-id');
+            if (categoryId === '' || subcategoryCategoryId === categoryId) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        }
+    });
+    
+    // Reset subcategory selection if it doesn't belong to selected category
+    if (categoryId && subcategorySelect.value) {
+        const selectedOption = subcategorySelect.options[subcategorySelect.selectedIndex];
+        if (selectedOption.getAttribute('data-category-id') !== categoryId) {
+            subcategorySelect.value = '';
+        }
+    }
+});
+
+// Trigger on page load if category is already selected
+if (document.getElementById('agriculture_category_id').value) {
+    document.getElementById('agriculture_category_id').dispatchEvent(new Event('change'));
+}
 </script>
 @endpush

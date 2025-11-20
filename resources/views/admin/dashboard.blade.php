@@ -30,7 +30,7 @@
                     <div>
                         <div class="stat-number">{{ $stats['total_customers'] }}</div>
                         <div class="stat-label">Total Customers</div>
-                        <small class="text-muted">{{ $stats['total_dealers'] }} dealers</small>
+                        <small class="text-muted">Registered customers</small>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-users fa-2x opacity-75"></i>
@@ -42,6 +42,23 @@
     
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card stat-card border-left-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="stat-number">{{ $stats['total_dealers'] }}</div>
+                        <div class="stat-label">Total Dealers</div>
+                        <small class="text-muted">{{ $stats['approved_dealers'] }} approved</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-tie fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-primary">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -62,12 +79,12 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <div class="stat-number">${{ number_format($stats['total_revenue'], 2) }}</div>
+                        <div class="stat-number">{{ $currencySymbol ?? '₹' }}{{ number_format($stats['total_revenue'], 2) }}</div>
                         <div class="stat-label">Total Revenue</div>
-                        <small class="text-muted">${{ number_format($stats['monthly_revenue'], 2) }} this month</small>
+                        <small class="text-muted">{{ $currencySymbol ?? '₹' }}{{ number_format($stats['monthly_revenue'], 2) }} this month</small>
                     </div>
                     <div class="align-self-center">
-                        <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+                        <i class="fas fa-rupee-sign fa-2x opacity-75"></i>
                     </div>
                 </div>
             </div>
@@ -210,7 +227,7 @@
                                         <span class="badge bg-primary">Customer</span>
                                     @endif
                                 </td>
-                                <td>${{ number_format($order->total_amount, 2) }}</td>
+                                <td>{{ $currencySymbol ?? '₹' }}{{ number_format($order->total_amount, 2) }}</td>
                                 <td>
                                     <span class="badge bg-{{ $order->order_status === 'pending' ? 'warning' : ($order->order_status === 'delivered' ? 'success' : ($order->order_status === 'cancelled' ? 'danger' : 'info')) }}">
                                         {{ ucfirst($order->order_status) }}
@@ -252,7 +269,7 @@
                         <small class="text-muted">{{ $product->order_items_count }} orders</small>
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-primary">${{ number_format($product->price, 2) }}</span>
+                        <span class="badge bg-primary">{{ $currencySymbol ?? '₹' }}{{ number_format($product->price, 2) }}</span>
                     </div>
                 </div>
                 @empty
@@ -441,16 +458,16 @@ new Chart(revenueCtx, {
                 display: false
             }
         },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return '$' + value.toLocaleString();
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '{{ $currencySymbol ?? '₹' }}' + value.toLocaleString();
+                            }
+                        }
                     }
                 }
-            }
-        }
     }
 });
 
@@ -519,10 +536,30 @@ new Chart(categoryCtx, {
 });
 
 function approveRegistration(registrationId) {
-    if (confirm('Are you sure you want to approve this dealer registration?')) {
-        // This would typically make an AJAX call to approve the registration
-        alert('Dealer registration approved!');
-    }
+    Swal.fire({
+        title: 'Approve Registration?',
+        text: 'Are you sure you want to approve this dealer registration?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#dc3545',
+        confirmButtonText: 'Yes, approve it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // This would typically make an AJAX call to approve the registration
+            Swal.fire({
+                icon: 'success',
+                title: 'Approved!',
+                text: 'Dealer registration approved successfully!',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+    });
 }
 </script>
 @endpush
