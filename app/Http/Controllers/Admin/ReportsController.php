@@ -70,32 +70,51 @@ class ReportsController extends Controller
     {
         $startDate = $request->get('start_date', now()->subMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
+        $type = $request->get('type', 'both'); // 'customer', 'dealer', or 'both'
 
-        $orders = AgricultureOrder::with('user', 'items.product')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->latest()
-            ->paginate(20);
+        $ordersQuery = AgricultureOrder::with('user', 'items.product')
+            ->whereBetween('created_at', [$startDate, $endDate]);
+
+        // Filter by type
+        if ($type === 'customer') {
+            $ordersQuery->whereHas('user', function($q) {
+                $q->where('role', 'customer');
+            });
+        } elseif ($type === 'dealer') {
+            $ordersQuery->whereHas('user', function($q) {
+                $q->where('role', 'dealer');
+            });
+        }
+
+        $orders = $ordersQuery->latest()->paginate(20);
+
+        // Base query for summary
+        $summaryQuery = AgricultureOrder::whereBetween('created_at', [$startDate, $endDate]);
+        $customerQuery = AgricultureOrder::whereBetween('created_at', [$startDate, $endDate])
+            ->whereHas('user', function($q) {
+                $q->where('role', 'customer');
+            });
+        $dealerQuery = AgricultureOrder::whereBetween('created_at', [$startDate, $endDate])
+            ->whereHas('user', function($q) {
+                $q->where('role', 'dealer');
+            });
+
+        // Apply type filter to summary if needed
+        if ($type === 'customer') {
+            $summaryQuery = $customerQuery;
+        } elseif ($type === 'dealer') {
+            $summaryQuery = $dealerQuery;
+        }
 
         $summary = [
-            'total_orders' => AgricultureOrder::whereBetween('created_at', [$startDate, $endDate])->count(),
-            'total_revenue' => AgricultureOrder::whereBetween('created_at', [$startDate, $endDate])
-                ->where('payment_status', 'paid')
-                ->sum('total_amount'),
-            'average_order_value' => AgricultureOrder::whereBetween('created_at', [$startDate, $endDate])
-                ->avg('total_amount'),
-            'customer_orders' => AgricultureOrder::whereBetween('created_at', [$startDate, $endDate])
-                ->whereHas('user', function($q) {
-                    $q->where('role', 'customer');
-                })
-                ->count(),
-            'dealer_orders' => AgricultureOrder::whereBetween('created_at', [$startDate, $endDate])
-                ->whereHas('user', function($q) {
-                    $q->where('role', 'dealer');
-                })
-                ->count(),
+            'total_orders' => $summaryQuery->count(),
+            'total_revenue' => $summaryQuery->where('payment_status', 'paid')->sum('total_amount'),
+            'average_order_value' => $summaryQuery->avg('total_amount'),
+            'customer_orders' => $customerQuery->count(),
+            'dealer_orders' => $dealerQuery->count(),
         ];
 
-        return view('admin.reports.sales', compact('orders', 'summary', 'startDate', 'endDate'));
+        return view('admin.reports.sales', compact('orders', 'summary', 'startDate', 'endDate', 'type'));
     }
 
     /**
@@ -160,6 +179,46 @@ class ReportsController extends Controller
         ];
 
         return view('admin.reports.customers', compact('customers', 'stats'));
+    }
+
+    /**
+     * Dealers report
+     */
+    public function dealers(Request $request)
+    {
+        $query = User::dealers()->withCount('agricultureOrders')
+            ->withSum('agricultureOrders', 'total_amount');
+
+        // Sort
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'orders':
+                    $query->orderBy('agriculture_orders_count', 'desc');
+                    break;
+                case 'spent':
+                    $query->orderBy('agriculture_orders_sum_total_amount', 'desc');
+                    break;
+                default:
+                    $query->latest();
+            }
+        } else {
+            $query->latest();
+        }
+
+        $dealers = $query->paginate(20);
+
+        $stats = [
+            'total_dealers' => User::dealers()->count(),
+            'approved_dealers' => User::dealers()->where('is_dealer_approved', true)->count(),
+            'pending_dealers' => User::dealers()->where('is_dealer_approved', false)->count(),
+            'new_this_month' => User::dealers()->whereMonth('created_at', now()->month)->count(),
+            'active_dealers' => User::dealers()->has('agricultureOrders')->count(),
+            'average_lifetime_value' => User::dealers()->withSum('agricultureOrders', 'total_amount')
+                ->get()
+                ->avg('agriculture_orders_sum_total_amount'),
+        ];
+
+        return view('admin.reports.dealers', compact('dealers', 'stats'));
     }
 }
 

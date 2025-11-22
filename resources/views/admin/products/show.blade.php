@@ -200,22 +200,6 @@
                         <small class="text-muted d-block">Model</small>
                         <span>{{ $product->model ?: '—' }}</span>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <small class="text-muted d-block">Power Source</small>
-                        <span>{{ $product->power_source ?: '—' }}</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <small class="text-muted d-block">Warranty</small>
-                        <span>{{ $product->warranty ?: '—' }}</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <small class="text-muted d-block">Weight</small>
-                        <span>{{ $product->weight ? $product->weight . ' kg' : '—' }}</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <small class="text-muted d-block">Dimensions</small>
-                        <span>{{ $product->dimensions ?: '—' }}</span>
-                    </div>
                 </div>
             </div>
         </div>

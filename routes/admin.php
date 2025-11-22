@@ -79,12 +79,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
         Route::get('/profile/{user}', [DealerManagementController::class, 'showDealerProfile'])->name('profile');
         Route::post('/{user}/revoke', [DealerManagementController::class, 'revokeDealerStatus'])->name('revoke');
         Route::post('/{user}/restore', [DealerManagementController::class, 'restoreDealerStatus'])->name('restore');
+        Route::post('/{user}/reset-password', [DealerManagementController::class, 'resetPassword'])->name('reset-password');
     });
     
     // Customer Management
     Route::prefix('customers')->name('customers.')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('index');
         Route::get('/{user}', [CustomerController::class, 'show'])->name('show');
+        Route::post('/{user}/reset-password', [CustomerController::class, 'resetPassword'])->name('reset-password');
     });
     
     // Reports & Analytics
@@ -93,6 +95,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
         Route::get('/sales', [ReportsController::class, 'sales'])->name('sales');
         Route::get('/inventory', [ReportsController::class, 'inventory'])->name('inventory');
         Route::get('/customers', [ReportsController::class, 'customers'])->name('customers');
+        Route::get('/dealers', [ReportsController::class, 'dealers'])->name('dealers');
     });
     
     // Settings

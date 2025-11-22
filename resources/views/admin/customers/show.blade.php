@@ -17,6 +17,10 @@
                     </div>
                 </div>
                 <div class="mb-2">
+                    <strong>User ID:</strong>
+                    <p class="text-muted"><code>{{ $user->id }}</code></p>
+                </div>
+                <div class="mb-2">
                     <strong>Name:</strong>
                     <p class="text-muted">{{ $user->name }}</p>
                 </div>
@@ -32,6 +36,33 @@
                     <strong>Joined:</strong>
                     <p class="text-muted">{{ $user->created_at->format('F d, Y') }}</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Account Management Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-key me-2"></i>Account Management</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Password:</strong>
+                    @if($user->viewable_password)
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control" id="password_{{ $user->id }}" 
+                                   value="{{ $user->viewable_password }}" readonly>
+                            <button class="btn btn-outline-secondary" type="button" 
+                                    onclick="copyPassword('password_{{ $user->id }}')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    @else
+                        <p class="text-muted mt-2">No password stored</p>
+                    @endif
+                </div>
+                <button type="button" class="btn btn-warning w-100" onclick="resetPassword({{ $user->id }})">
+                    <i class="fas fa-key me-2"></i>Reset/Set Password
+                </button>
             </div>
         </div>
 
@@ -130,6 +161,73 @@
         </div>
     </div>
 </div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="resetPasswordForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p>Reset password for <strong>{{ $user->name }}</strong> ({{ $user->email }})?</p>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password *</label>
+                        <input type="password" name="new_password" id="new_password" class="form-control" 
+                               placeholder="Enter new password" required minlength="8">
+                        <small class="text-muted">Minimum 8 characters</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_password_confirmation" class="form-label">Confirm Password *</label>
+                        <input type="password" name="new_password_confirmation" id="new_password_confirmation" 
+                               class="form-control" placeholder="Confirm new password" required minlength="8">
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This will immediately change the user's password. They will need to use the new password to log in.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function resetPassword(userId) {
+    const form = document.getElementById('resetPasswordForm');
+    form.action = `/admin/customers/${userId}/reset-password`;
+    const modal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+    modal.show();
+}
+
+function copyPassword(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(input.value).then(function() {
+        // Show success message
+        const btn = input.nextElementSibling;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        setTimeout(function() {
+            btn.innerHTML = originalHtml;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+}
+</script>
+@endpush
 @endsection
 
 

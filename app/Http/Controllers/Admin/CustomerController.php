@@ -63,6 +63,30 @@ class CustomerController extends Controller
 
         return view('admin.customers.show', compact('user', 'orders', 'stats'));
     }
+
+    /**
+     * Reset customer password
+     */
+    public function resetPassword(Request $request, User $user)
+    {
+        if (!$user->isCustomer()) {
+            return redirect()->back()->with('error', 'This user is not a customer.');
+        }
+
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'new_password.confirmed' => 'The password confirmation does not match.',
+        ]);
+
+        $user->update([
+            'password' => \Hash::make($request->new_password),
+            'viewable_password' => $request->new_password, // Store plain text for admin viewing
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Password has been reset successfully for ' . $user->name . '.');
+    }
 }
 
 

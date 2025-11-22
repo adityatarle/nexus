@@ -11,15 +11,9 @@ class FileUploadService
 {
     /**
      * Allowed MIME types for image uploads
+     * Accept all image types
      */
-    private const ALLOWED_MIME_TYPES = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/webp',
-        'image/x-png', // Some systems report PNG as this
-        'image/pjpeg', // Some older systems
-    ];
+    private const ALLOWED_MIME_TYPES = []; // Empty array means accept all image types
 
     /**
      * Maximum file size in bytes (2MB)
@@ -109,58 +103,12 @@ class FileUploadService
             throw new Exception('File size exceeds maximum allowed size of 2MB.');
         }
 
-        // Check MIME type
+        // Check MIME type - accept all image types
         $mimeType = $file->getMimeType();
         
-        // Normalize MIME types (jpeg and jpg are the same)
-        $normalizedMimeType = $mimeType;
-        if ($mimeType === 'image/jpg' || $mimeType === 'image/pjpeg') {
-            $normalizedMimeType = 'image/jpeg';
-        }
-        if ($mimeType === 'image/x-png') {
-            $normalizedMimeType = 'image/png';
-        }
-        
-        // Check if MIME type is allowed (check both original and normalized)
-        $allowedBaseTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        $isValidMimeType = in_array($mimeType, self::ALLOWED_MIME_TYPES) || 
-                          in_array($normalizedMimeType, $allowedBaseTypes);
-        
-        if (!$isValidMimeType) {
-            throw new Exception("Invalid file type '{$mimeType}'. Only JPEG, PNG, and WebP images are allowed.");
-        }
-
-        // Check file extension matches MIME type (more lenient check)
-        $extension = strtolower($file->getClientOriginalExtension());
-        $validExtensions = [
-            'image/jpeg' => ['jpg', 'jpeg'],
-            'image/jpg' => ['jpg', 'jpeg'], // Some systems report jpg as separate MIME type
-            'image/png' => ['png'],
-            'image/webp' => ['webp'],
-        ];
-
-        // Normalize MIME type (jpeg and jpg are the same)
-        $normalizedMimeType = $mimeType;
-        if ($mimeType === 'image/jpg') {
-            $normalizedMimeType = 'image/jpeg';
-        }
-
-        // Check if extension is valid for the MIME type
-        $isValidExtension = false;
-        if (isset($validExtensions[$normalizedMimeType])) {
-            $isValidExtension = in_array($extension, $validExtensions[$normalizedMimeType]);
-        }
-        
-        // Also check if extension is in our allowed list (more lenient)
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        if (!$isValidExtension && in_array($extension, $allowedExtensions)) {
-            // If extension is valid but MIME type doesn't match exactly, log warning but allow
-            \Log::warning("Image upload: Extension '{$extension}' with MIME type '{$mimeType}' - allowing with warning");
-            $isValidExtension = true;
-        }
-
-        if (!$isValidExtension) {
-            throw new Exception("File extension '{$extension}' does not match file type '{$mimeType}'. Allowed: " . implode(', ', $allowedExtensions));
+        // Only check that it's an image type (starts with 'image/')
+        if (!str_starts_with($mimeType, 'image/')) {
+            throw new Exception("Invalid file type '{$mimeType}'. Only image files are allowed.");
         }
 
         // Verify it's actually an image and check dimensions

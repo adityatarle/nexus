@@ -236,8 +236,8 @@ class ProductController extends Controller
                 'is_active' => 'boolean',
                 'in_stock' => 'boolean',
                 'manage_stock' => 'boolean',
-                'primary_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
-                'gallery_images.*' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+                'primary_image' => 'nullable|image|max:2048',
+                'gallery_images.*' => 'nullable|image|max:2048',
             ]);
             
             $data = $validated;

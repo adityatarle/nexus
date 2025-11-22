@@ -86,26 +86,6 @@
                             <strong>Model:</strong> {{ $product->model }}
                         </div>
                         @endif
-                        @if($product->power_source)
-                        <div class="col-md-6 mb-2">
-                            <strong>Power Source:</strong> {{ $product->power_source }}
-                        </div>
-                        @endif
-                        @if($product->warranty)
-                        <div class="col-md-6 mb-2">
-                            <strong>Warranty:</strong> {{ $product->warranty }}
-                        </div>
-                        @endif
-                        @if($product->weight)
-                        <div class="col-md-6 mb-2">
-                            <strong>Weight:</strong> {{ $product->weight }} kg
-                        </div>
-                        @endif
-                        @if($product->dimensions)
-                        <div class="col-md-6 mb-2">
-                            <strong>Dimensions:</strong> {{ $product->dimensions }}
-                        </div>
-                        @endif
                     </div>
                 </div>
                 
@@ -181,7 +161,7 @@
                                 </svg>
                                 <div>
                                     <strong>Warranty Included</strong><br>
-                                    <small class="text-muted">{{ $product->warranty ?? 'Standard warranty' }}</small>
+                                    <small class="text-muted">Standard warranty</small>
                                 </div>
                             </div>
                         </div>

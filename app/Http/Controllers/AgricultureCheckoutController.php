@@ -61,8 +61,8 @@ class AgricultureCheckoutController extends Controller
         $taxAmount = round($subtotal * $taxRate, 2);
         $totalAmount = round($subtotal + $taxAmount + $shippingCost, 2);
 
-        // Generate unique order number
-        $orderNumber = 'AGR-' . strtoupper(Str::random(8));
+        // Generate unique order number starting from GL-1001
+        $orderNumber = AgricultureOrder::generateOrderNumber();
 
         // Create order as inquiry (no payment required)
         $order = AgricultureOrder::create([

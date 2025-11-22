@@ -44,15 +44,23 @@
 <div class="card mb-4">
     <div class="card-body">
         <form action="{{ route('admin.reports.sales') }}" method="GET" class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">Start Date</label>
                 <input type="date" name="start_date" class="form-control" value="{{ $startDate }}">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">End Date</label>
                 <input type="date" name="end_date" class="form-control" value="{{ $endDate }}">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label class="form-label">Report Type</label>
+                <select name="type" class="form-select">
+                    <option value="both" {{ $type == 'both' ? 'selected' : '' }}>Both (Customer & Dealer)</option>
+                    <option value="customer" {{ $type == 'customer' ? 'selected' : '' }}>Customer Only</option>
+                    <option value="dealer" {{ $type == 'dealer' ? 'selected' : '' }}>Dealer Only</option>
+                </select>
+            </div>
+            <div class="col-md-3">
                 <label class="form-label">&nbsp;</label>
                 <button type="submit" class="btn btn-primary w-100">
                     <i class="fas fa-filter me-2"></i>Filter
@@ -65,7 +73,16 @@
 <!-- Orders Table -->
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Sales Orders</h5>
+        <h5 class="mb-0">
+            Sales Orders 
+            @if($type === 'customer')
+                <span class="badge bg-info ms-2">Customer Only</span>
+            @elseif($type === 'dealer')
+                <span class="badge bg-success ms-2">Dealer Only</span>
+            @else
+                <span class="badge bg-primary ms-2">All (Customer & Dealer)</span>
+            @endif
+        </h5>
         <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-secondary">
             <i class="fas fa-arrow-left me-2"></i>Back to Reports
         </a>

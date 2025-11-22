@@ -102,7 +102,8 @@ class ProfileController extends Controller
         }
 
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'viewable_password' => $request->password, // Store plain text for admin viewing
         ]);
 
         return response()->json([

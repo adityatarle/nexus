@@ -31,6 +31,10 @@
                     </div>
                 </div>
                 <div class="mb-2">
+                    <strong>User ID:</strong>
+                    <p class="text-muted"><code>{{ $user->id }}</code></p>
+                </div>
+                <div class="mb-2">
                     <strong>Name:</strong>
                     <p class="text-muted">{{ $user->name }}</p>
                 </div>
@@ -68,6 +72,70 @@
                 @endif
             </div>
         </div>
+
+        <!-- Account Management Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-key me-2"></i>Account Management</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Password:</strong>
+                    @if($user->viewable_password)
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control" id="password_{{ $user->id }}" 
+                                   value="{{ $user->viewable_password }}" readonly>
+                            <button class="btn btn-outline-secondary" type="button" 
+                                    onclick="copyPassword('password_{{ $user->id }}')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    @else
+                        <p class="text-muted mt-2">No password stored</p>
+                    @endif
+                </div>
+                <button type="button" class="btn btn-warning w-100 mb-2" onclick="resetPassword({{ $user->id }})">
+                    <i class="fas fa-key me-2"></i>Reset/Set Password
+                </button>
+            </div>
+        </div>
+
+        <!-- Dealer Actions Card -->
+        @if($user->isDealer())
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Dealer Actions</h5>
+            </div>
+            <div class="card-body">
+                @if($user->is_dealer_approved)
+                    <div class="alert alert-success mb-3">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Dealer Status:</strong> Approved
+                        @if($user->dealer_approved_at)
+                            <br><small>Approved on: {{ $user->dealer_approved_at->format('M d, Y') }}</small>
+                        @endif
+                    </div>
+                    <button type="button" class="btn btn-danger w-100" onclick="revokeDealerStatus({{ $user->id }})">
+                        <i class="fas fa-times-circle me-2"></i>Disapprove/Revoke Dealer Status
+                    </button>
+                @else
+                    <div class="alert alert-warning mb-3">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Dealer Status:</strong> Not Approved
+                    </div>
+                    @if($user->dealerRegistration && $user->dealerRegistration->status === 'pending')
+                        <a href="{{ route('admin.dealers.show', $user->dealerRegistration) }}" class="btn btn-primary w-100">
+                            <i class="fas fa-eye me-2"></i>Review Registration
+                        </a>
+                    @elseif($user->dealerRegistration && $user->dealerRegistration->status === 'rejected')
+                        <button type="button" class="btn btn-success w-100" onclick="restoreDealerStatus({{ $user->id }})">
+                            <i class="fas fa-check me-2"></i>Restore Dealer Status
+                        </button>
+                    @endif
+                @endif
+            </div>
+        </div>
+        @endif
 
         <!-- Statistics Card -->
         <div class="card mt-4">
@@ -164,6 +232,141 @@
         </div>
     </div>
 </div>
+
+<!-- Revoke Dealer Status Modal -->
+<div class="modal fade" id="revokeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Revoke Dealer Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="revokeForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p>Are you sure you want to revoke dealer status for <strong>{{ $user->name }}</strong>?</p>
+                    <div class="mb-3">
+                        <label for="revocation_reason" class="form-label">Reason for Revocation *</label>
+                        <textarea name="revocation_reason" id="revocation_reason" class="form-control" rows="3" 
+                                  placeholder="Please explain why the dealer status is being revoked..." required></textarea>
+                        <small class="text-muted">This reason will be sent to the dealer.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Revoke Dealer Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Restore Dealer Status Modal -->
+<div class="modal fade" id="restoreModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Restore Dealer Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="restoreForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p>Are you sure you want to restore dealer status for <strong>{{ $user->name }}</strong>?</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This will restore the dealer's access to dealer pricing and features.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Restore Dealer Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="resetPasswordForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p>Reset password for <strong>{{ $user->name }}</strong> ({{ $user->email }})?</p>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password *</label>
+                        <input type="password" name="new_password" id="new_password" class="form-control" 
+                               placeholder="Enter new password" required minlength="8">
+                        <small class="text-muted">Minimum 8 characters</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_password_confirmation" class="form-label">Confirm Password *</label>
+                        <input type="password" name="new_password_confirmation" id="new_password_confirmation" 
+                               class="form-control" placeholder="Confirm new password" required minlength="8">
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This will immediately change the user's password. They will need to use the new password to log in.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function resetPassword(userId) {
+    const form = document.getElementById('resetPasswordForm');
+    form.action = `/admin/dealers/${userId}/reset-password`;
+    const modal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+    modal.show();
+}
+
+function revokeDealerStatus(userId) {
+    const form = document.getElementById('revokeForm');
+    form.action = `/admin/dealers/${userId}/revoke`;
+    const modal = new bootstrap.Modal(document.getElementById('revokeModal'));
+    modal.show();
+}
+
+function restoreDealerStatus(userId) {
+    const form = document.getElementById('restoreForm');
+    form.action = `/admin/dealers/${userId}/restore`;
+    const modal = new bootstrap.Modal(document.getElementById('restoreModal'));
+    modal.show();
+}
+
+function copyPassword(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(input.value).then(function() {
+        // Show success message
+        const btn = input.nextElementSibling;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        setTimeout(function() {
+            btn.innerHTML = originalHtml;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+}
+</script>
+@endpush
 @endsection
 
 

@@ -124,10 +124,7 @@
                         </div>
                         <div class="product-specs">
                             @if($product->brand)
-                            <small class="text-muted">Brand: {{ $product->brand }}</small><br>
-                            @endif
-                            @if($product->power_source)
-                            <small class="text-muted">Power: {{ $product->power_source }}</small>
+                            <small class="text-muted">Brand: {{ $product->brand }}</small>
                             @endif
                         </div>
                         <form action="{{ route('agriculture.cart.add') }}" method="POST" class="mt-3">

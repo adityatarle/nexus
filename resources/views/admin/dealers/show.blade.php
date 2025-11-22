@@ -173,6 +173,10 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
+                        <strong>User ID:</strong><br>
+                        <span class="text-muted"><code>{{ $dealerRegistration->user->id }}</code></span>
+                    </div>
+                    <div class="mb-3">
                         <strong>Account Name:</strong><br>
                         <span class="text-muted">{{ $dealerRegistration->user->name }}</span>
                     </div>
@@ -187,6 +191,21 @@
                     <div class="mb-3">
                         <strong>Account Created:</strong><br>
                         <span class="text-muted">{{ $dealerRegistration->user->created_at->format('M d, Y') }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Password:</strong>
+                        @if($dealerRegistration->user->viewable_password)
+                            <div class="input-group mt-2">
+                                <input type="text" class="form-control" id="password_{{ $dealerRegistration->user->id }}" 
+                                       value="{{ $dealerRegistration->user->viewable_password }}" readonly>
+                                <button class="btn btn-outline-secondary" type="button" 
+                                        onclick="copyPassword('password_{{ $dealerRegistration->user->id }}')">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        @else
+                            <p class="text-muted mt-2">No password stored</p>
+                        @endif
                     </div>
                     @if($dealerRegistration->user && $dealerRegistration->user->id)
                     <div class="d-grid">
@@ -217,6 +236,23 @@
                             <i class="fas fa-times"></i> Reject Registration
                         </button>
                     </div>
+                </div>
+            </div>
+            @elseif($dealerRegistration->status === 'approved' && $dealerRegistration->user && $dealerRegistration->user->is_dealer_approved)
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Admin Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-danger" onclick="revokeDealerStatus({{ $dealerRegistration->user->id }})">
+                            <i class="fas fa-times-circle"></i> Disapprove/Revoke Dealer Status
+                        </button>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        This will revoke the dealer's approved status and remove access to dealer pricing.
+                    </small>
                 </div>
             </div>
             @endif
@@ -308,6 +344,34 @@
 </div>
 @endsection
 
+<!-- Revoke Dealer Status Modal -->
+<div class="modal fade" id="revokeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Revoke Dealer Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="revokeForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p>Are you sure you want to revoke dealer status for <strong>{{ $dealerRegistration->business_name }}</strong>?</p>
+                    <div class="mb-3">
+                        <label for="revocation_reason" class="form-label">Reason for Revocation *</label>
+                        <textarea name="revocation_reason" id="revocation_reason" class="form-control" rows="3" 
+                                  placeholder="Please explain why the dealer status is being revoked..." required></textarea>
+                        <small class="text-muted">This reason will be sent to the dealer.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Revoke Dealer Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 function approveRegistration(registrationId) {
@@ -322,6 +386,32 @@ function rejectRegistration(registrationId) {
     form.action = `/admin/dealers/${registrationId}/reject`;
     const modal = new bootstrap.Modal(document.getElementById('rejectionModal'));
     modal.show();
+}
+
+function revokeDealerStatus(userId) {
+    const form = document.getElementById('revokeForm');
+    form.action = `/admin/dealers/${userId}/revoke`;
+    const modal = new bootstrap.Modal(document.getElementById('revokeModal'));
+    modal.show();
+}
+
+function copyPassword(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(input.value).then(function() {
+        // Show success message
+        const btn = input.nextElementSibling;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        setTimeout(function() {
+            btn.innerHTML = originalHtml;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
 }
 </script>
 @endpush

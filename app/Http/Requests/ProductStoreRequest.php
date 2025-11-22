@@ -150,7 +150,6 @@ class ProductStoreRequest extends FormRequest
             'primary_image' => [
                 'required',
                 'image',
-                'mimes:jpeg,jpg,png,webp',
                 'max:2048', // 2MB
                 'dimensions:min_width=400,min_height=400,max_width=4000,max_height=4000',
             ],
@@ -162,7 +161,6 @@ class ProductStoreRequest extends FormRequest
             'gallery_images.*' => [
                 'nullable',
                 'image',
-                'mimes:jpeg,jpg,png,webp',
                 'max:2048',
             ],
         ];

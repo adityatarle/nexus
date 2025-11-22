@@ -64,13 +64,13 @@
                             {{ $product->primary_image ? 'Replace Primary Image' : 'Primary Image *' }}
                         </label>
                         <input type="file" class="form-control @error('primary_image') is-invalid @enderror" 
-                               id="primary_image" name="primary_image" accept="image/jpeg,image/jpg,image/png,image/webp">
+                               id="primary_image" name="primary_image" accept="image/*">
                         @error('primary_image')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="text-muted d-block mt-1">
                             <i class="fas fa-info-circle me-1"></i>
-                            Accepted: JPEG, PNG, WebP | Max size: 2MB | Min dimensions: 400x400px
+                            Accepted: All image types | Max size: 2MB | Min dimensions: 400x400px
                         </small>
                         <div id="primary_image_preview" class="mt-2"></div>
                     </div>
@@ -113,7 +113,7 @@
                             {{ !empty($galleryImages) ? 'Add More Gallery Images' : 'Gallery Images (Optional)' }}
                         </label>
                         <input type="file" class="form-control @error('gallery_images.*') is-invalid @enderror" 
-                               id="gallery_images" name="gallery_images[]" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
+                               id="gallery_images" name="gallery_images[]" accept="image/*" multiple>
                         @error('gallery_images.*')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -277,29 +277,6 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="power_source" class="form-label">Power Source</label>
-                                <input type="text" class="form-control @error('power_source') is-invalid @enderror" 
-                                       id="power_source" name="power_source" value="{{ old('power_source', $product->power_source) }}">
-                                @error('power_source')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="warranty" class="form-label">Warranty</label>
-                                <input type="text" class="form-control @error('warranty') is-invalid @enderror" 
-                                       id="warranty" name="warranty" value="{{ old('warranty', $product->warranty) }}">
-                                @error('warranty')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="mb-3">
                         <label for="short_description" class="form-label">Short Description</label>
                         <textarea class="form-control @error('short_description') is-invalid @enderror" 
@@ -316,29 +293,6 @@
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="weight" class="form-label">Weight (kg)</label>
-                                <input type="number" step="0.01" class="form-control @error('weight') is-invalid @enderror" 
-                                       id="weight" name="weight" value="{{ old('weight', $product->weight) }}">
-                                @error('weight')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="dimensions" class="form-label">Dimensions</label>
-                                <input type="text" class="form-control @error('dimensions') is-invalid @enderror" 
-                                       id="dimensions" name="dimensions" value="{{ old('dimensions', $product->dimensions) }}" placeholder="LxWxH">
-                                @error('dimensions')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
                     </div>
 
                     <div class="row">
@@ -489,10 +443,9 @@ document.getElementById('primary_image').addEventListener('change', function(e) 
             return;
         }
         
-        // Validate file type
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        if (!validTypes.includes(file.type)) {
-            showAlert('Please select a valid image file (JPEG, PNG, or WebP)', 'error', 'Invalid File Type');
+        // Validate file type - accept all image types
+        if (!file.type.startsWith('image/')) {
+            showAlert('Please select a valid image file', 'error', 'Invalid File Type');
             e.target.value = '';
             return;
         }
@@ -537,10 +490,9 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
             return;
         }
         
-        // Validate file type
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        if (!validTypes.includes(file.type)) {
-            showAlert(`File ${index + 1} must be a valid image (JPEG, PNG, or WebP)`, 'error', 'Invalid File Type');
+        // Validate file type - accept all image types
+        if (!file.type.startsWith('image/')) {
+            showAlert(`File ${index + 1} must be a valid image file`, 'error', 'Invalid File Type');
             e.target.value = '';
             return;
         }

@@ -50,25 +50,63 @@
 
 <!-- Quick Report Links -->
 <div class="row mb-4">
-    <div class="col-md-4 mb-3">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
-                <h5>Sales Report</h5>
-                <p class="text-muted">Detailed sales analysis by date range</p>
-                <a href="{{ route('admin.reports.sales') }}" class="btn btn-primary">
-                    <i class="fas fa-arrow-right me-2"></i>View Report
-                </a>
+    <div class="col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Sales Reports</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-primary h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                                <h5>All Sales</h5>
+                                <p class="text-muted">Customer & Dealer combined</p>
+                                <a href="{{ route('admin.reports.sales', ['type' => 'both']) }}" class="btn btn-primary">
+                                    <i class="fas fa-arrow-right me-2"></i>View Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-info h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user fa-3x text-info mb-3"></i>
+                                <h5>Customer Sales</h5>
+                                <p class="text-muted">Customer-only sales report</p>
+                                <a href="{{ route('admin.reports.sales', ['type' => 'customer']) }}" class="btn btn-info">
+                                    <i class="fas fa-arrow-right me-2"></i>View Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-success h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-tie fa-3x text-success mb-3"></i>
+                                <h5>Dealer Sales</h5>
+                                <p class="text-muted">Dealer-only sales report</p>
+                                <a href="{{ route('admin.reports.sales', ['type' => 'dealer']) }}" class="btn btn-success">
+                                    <i class="fas fa-arrow-right me-2"></i>View Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+</div>
+
+<div class="row mb-4">
     <div class="col-md-4 mb-3">
         <div class="card h-100">
             <div class="card-body text-center">
-                <i class="fas fa-boxes fa-3x text-success mb-3"></i>
+                <i class="fas fa-boxes fa-3x text-warning mb-3"></i>
                 <h5>Inventory Report</h5>
                 <p class="text-muted">Stock levels and low stock alerts</p>
-                <a href="{{ route('admin.reports.inventory') }}" class="btn btn-success">
+                <a href="{{ route('admin.reports.inventory') }}" class="btn btn-warning">
                     <i class="fas fa-arrow-right me-2"></i>View Report
                 </a>
             </div>
@@ -81,6 +119,18 @@
                 <h5>Customer Report</h5>
                 <p class="text-muted">Customer insights and analysis</p>
                 <a href="{{ route('admin.reports.customers') }}" class="btn btn-info">
+                    <i class="fas fa-arrow-right me-2"></i>View Report
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-user-tie fa-3x text-success mb-3"></i>
+                <h5>Dealer Report</h5>
+                <p class="text-muted">Dealer insights and analysis</p>
+                <a href="{{ route('admin.reports.dealers') }}" class="btn btn-success">
                     <i class="fas fa-arrow-right me-2"></i>View Report
                 </a>
             </div>

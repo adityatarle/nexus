@@ -91,6 +91,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'viewable_password' => $request->password, // Store plain text for admin viewing
             'role' => $request->role,
             'phone' => $request->phone,
         ]);
