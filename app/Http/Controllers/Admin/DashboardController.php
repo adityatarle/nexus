@@ -25,11 +25,11 @@ class DashboardController extends Controller
             'shipped_orders' => AgricultureOrder::where('order_status', 'shipped')->count(),
             'delivered_orders' => AgricultureOrder::where('order_status', 'delivered')->count(),
             'cancelled_orders' => AgricultureOrder::where('order_status', 'cancelled')->count(),
-            'total_revenue' => AgricultureOrder::where('payment_status', 'paid')->sum('total_amount'),
+            'total_revenue' => AgricultureOrder::where('payment_status', 'paid')->sum('total_amount') ?? 0,
             'monthly_revenue' => AgricultureOrder::where('payment_status', 'paid')
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
-                ->sum('total_amount'),
+                ->sum('total_amount') ?? 0,
             'low_stock_products' => AgricultureProduct::where('stock_quantity', '<', 10)->count(),
             'out_of_stock_products' => AgricultureProduct::where('stock_quantity', 0)->count(),
             'featured_products' => AgricultureProduct::where('is_featured', true)->count(),
@@ -51,6 +51,14 @@ class DashboardController extends Controller
             ->orderBy('order_items_count', 'desc')
             ->take(5)
             ->get();
+        
+        // Ensure order_items_count is available
+        $topProducts = $topProducts->map(function($product) {
+            if (!isset($product->order_items_count)) {
+                $product->order_items_count = $product->orderItems()->count();
+            }
+            return $product;
+        });
 
         // Recent dealer registrations
         $recentDealerRegistrations = DealerRegistration::with('user')
@@ -70,11 +78,8 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Top selling products
-        $topSellingProducts = AgricultureProduct::withCount('orderItems')
-            ->orderBy('order_items_count', 'desc')
-            ->take(5)
-            ->get();
+        // Top selling products (duplicate removed - using $topProducts above)
+        $topSellingProducts = $topProducts;
 
         // Orders by status for chart
         $ordersByStatus = [
@@ -95,7 +100,7 @@ class DashboardController extends Controller
                 ->sum('total_amount');
             $revenueByMonth[] = [
                 'month' => $month->format('M Y'),
-                'revenue' => $revenue
+                'revenue' => $revenue ?? 0
             ];
         }
 
