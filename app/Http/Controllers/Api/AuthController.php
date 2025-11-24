@@ -83,13 +83,20 @@ class AuthController extends Controller
 
     /**
      * Login user
+     * Accepts either email or phone for authentication
      */
     public function login(Request $request)
     {
         try {
+            // Validate that either email or phone is provided (but not both required)
             $validator = Validator::make($request->all(), [
-                'email' => 'required|email',
+                'email' => 'required_without:phone|email',
+                'phone' => 'required_without:email|string',
                 'password' => 'required|string',
+            ], [
+                'email.required_without' => 'Either email or phone number is required.',
+                'phone.required_without' => 'Either email or phone number is required.',
+                'email.email' => 'Please provide a valid email address.',
             ]);
 
             if ($validator->fails()) {
@@ -100,7 +107,13 @@ class AuthController extends Controller
                 ], 422);
             }
 
-            $user = User::where('email', $request->email)->first();
+            // Find user by email or phone
+            $user = null;
+            if ($request->filled('email')) {
+                $user = User::where('email', $request->email)->first();
+            } elseif ($request->filled('phone')) {
+                $user = User::where('phone', $request->phone)->first();
+            }
 
             if (!$user) {
                 return response()->json([
