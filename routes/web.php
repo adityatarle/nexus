@@ -76,7 +76,7 @@ Route::prefix('customer')->name('customer.')->middleware('auth')->group(function
 
 // Coming Soon Home page (new home page)
 use App\Http\Controllers\HomeController;
-Route::get('/', [HomeController::class, 'commingSoon'])->name('home');
+Route::get('/', [HomeController::class, 'comingSoon'])->name('home');
 
 // APK Download route
 Route::get('/download-app', [HomeController::class, 'downloadApk'])->name('app.download');
