@@ -45,7 +45,7 @@ class DealerRegistrationController extends Controller
         $validator = Validator::make($request->all(), [
             // Business Information
             'business_name' => 'required|string|max:255',
-            'gst_number' => 'required|string|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/',
+            'gst_number' => 'nullable|string|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/|unique:dealer_registrations,gst_number',
             'pan_number' => 'required|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/',
             'business_address' => 'required|string|max:1000',
             'business_city' => 'required|string|max:100',
@@ -97,7 +97,7 @@ class DealerRegistrationController extends Controller
         $registration = DealerRegistration::create([
             'user_id' => $user->id,
             'business_name' => $request->business_name,
-            'gst_number' => $request->gst_number,
+            'gst_number' => $request->gst_number ?? null,
             'pan_number' => $request->pan_number,
             'business_address' => $request->business_address,
             'business_city' => $request->business_city,
@@ -121,7 +121,7 @@ class DealerRegistrationController extends Controller
         // Update user with business information
         $user->update([
             'business_name' => $request->business_name,
-            'gst_number' => $request->gst_number,
+            'gst_number' => $request->gst_number ?? null,
             'business_address' => $request->business_address,
             'contact_person' => $request->contact_person,
             'phone' => $request->contact_phone,

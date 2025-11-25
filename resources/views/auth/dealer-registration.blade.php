@@ -74,15 +74,14 @@
                                     </div>
                                     
                                     <div class="col-md-6">
-                                        <label for="gst_number" class="form-label fw-bold">GST Number *</label>
+                                        <label for="gst_number" class="form-label fw-bold">GST Number</label>
                                         <input type="text" 
                                                class="form-control @error('gst_number') is-invalid @enderror" 
                                                id="gst_number" 
                                                name="gst_number" 
                                                value="{{ old('gst_number') }}" 
-                                               placeholder="22ABCDE1234F1Z5"
-                                               required>
-                                        <small class="text-muted">Format: 22ABCDE1234F1Z5</small>
+                                               placeholder="22ABCDE1234F1Z5">
+                                        <small class="text-muted">Format: 22ABCDE1234F1Z5 (Optional)</small>
                                         @error('gst_number')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

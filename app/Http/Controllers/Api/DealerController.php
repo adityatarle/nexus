@@ -65,7 +65,7 @@ class DealerController extends Controller
             'name' => 'required|string|max:255',  // Contact person name
             'email' => 'required|email|max:255',  // Contact email
             'business_name' => 'required|string|max:255',
-            'gst_number' => 'required|string|unique:dealer_registrations,gst_number',
+            'gst_number' => 'nullable|string|max:255|unique:dealer_registrations,gst_number',
             'business_address' => 'required|string',
             'phone' => 'required|string|max:20',
             'company_website' => 'nullable|url|max:255',
@@ -120,7 +120,7 @@ class DealerController extends Controller
         $registration = DealerRegistration::create([
             'user_id' => $user->id,
             'business_name' => $requestData['business_name'],
-            'gst_number' => $requestData['gst_number'],
+            'gst_number' => $requestData['gst_number'] ?? null,
             'pan_number' => $requestData['pan_number'] ?? null,
             'business_address' => $requestData['business_address'],
             'business_city' => $requestData['business_city'] ?? null,

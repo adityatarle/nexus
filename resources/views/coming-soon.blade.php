@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon - Nexus Agriculture</title>
+    <title>Coming Soon - Greenleaf</title>
 
     <!-- Bootstrap + Poppins + Animate.css -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -429,7 +429,7 @@
 
                                 <!-- ───── LOGO ───── -->
                                 <div class="logo-wrapper wow fadeInDown" data-wow-delay="100ms">
-                                    <img src="{{ asset('assets/comming-soon/logo.png') }}" alt="Nexus Agriculture Logo">
+                                    <img src="{{ asset('assets/comming-soon/logo.png') }}" alt="Greenleaf Logo">
                                 </div>
 
                                 <!-- ───── HEADLINE ───── -->
@@ -516,7 +516,7 @@
 
                                 <!-- ───── DOWNLOAD BUTTON ───── -->
                                 <a href="{{ route('app.download') }}" class="download-button wow fadeInUp w-50 mx-auto"
-                                    data-wow-delay="600ms" id="downloadBtn">
+                                    data-wow-delay="600ms" id="downloadBtn" download>
                                     <span>Download App Now</span>
                                 </a>
 
@@ -567,7 +567,7 @@
             <div class="row align-items-center text-center text-md-start">
                 <div class="col-md-6">
                     <p class="mb-0 text-white text-opacity-75 small">
-                        &copy; 2025 <strong>Nexus Agriculture</strong>. All rights reserved.
+                        &copy; 2025 <strong>Greenleaf</strong>. All rights reserved.
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
@@ -590,7 +590,7 @@
 
         /* ──────────────────────  TYPEWRITER EFFECT  ────────────────────── */
         const phrases = [
-            "Nexus Agriculture",
+            "Greenleaf",
             "AI‑Powered Farming",
             "Smart Crop Insights",
             "Sustainable Harvest",
@@ -644,6 +644,7 @@
         /* ──────────────────────  DOWNLOAD BUTTON  ────────────────────── */
         // Download button will directly download the APK file
         // The link is already set to the download route, so clicking will trigger the download
+        // If file doesn't exist, backend will return JSON error which browser will handle
     </script>
 </body>
 
