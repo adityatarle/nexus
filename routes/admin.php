@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\OfferController;
+use App\Http\Controllers\Admin\BrandController;
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->group(function () {
     
@@ -64,6 +65,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
     
     // Subcategories Management
     Route::resource('subcategories', SubcategoryController::class);
+    
+    // Brands Management
+    Route::resource('brands', BrandController::class);
     
     // Orders Management
     Route::resource('orders', OrderController::class);

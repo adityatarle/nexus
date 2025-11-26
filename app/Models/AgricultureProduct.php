@@ -41,7 +41,8 @@ class AgricultureProduct extends Model
         'power_source',
         'warranty',
         'agriculture_category_id',
-        'agriculture_subcategory_id'
+        'agriculture_subcategory_id',
+        'brand_id'
     ];
 
     protected $casts = [
@@ -89,6 +90,11 @@ class AgricultureProduct extends Model
     public function subcategory()
     {
         return $this->belongsTo(AgricultureSubcategory::class, 'agriculture_subcategory_id');
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
     }
 
     public function orderItems()
