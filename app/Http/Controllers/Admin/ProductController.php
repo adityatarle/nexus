@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AgricultureProduct;
 use App\Models\AgricultureCategory;
 use App\Models\AgricultureSubcategory;
+use App\Models\Brand;
 use App\Http\Requests\ProductStoreRequest;
 use App\Services\FileUploadService;
 use App\Imports\ProductImport;
@@ -68,7 +69,8 @@ class ProductController extends Controller
     {
         $categories = AgricultureCategory::active()->get();
         $subcategories = AgricultureSubcategory::active()->get();
-        return view('admin.products.create', compact('categories', 'subcategories'));
+        $brands = Brand::active()->ordered()->get();
+        return view('admin.products.create', compact('categories', 'subcategories', 'brands'));
     }
     
     public function store(ProductStoreRequest $request)
@@ -117,6 +119,22 @@ class ProductController extends Controller
             if (!isset($data['dealer_min_quantity'])) {
                 $data['dealer_min_quantity'] = 1;
             }
+            
+            // Handle brand: if brand_id is provided, use it; otherwise use custom brand string
+            if (isset($data['brand_id']) && !empty($data['brand_id'])) {
+                $data['brand_id'] = $data['brand_id'];
+                // Clear brand string if brand_id is set
+                $data['brand'] = null;
+            } elseif (isset($data['brand_custom']) && !empty($data['brand_custom'])) {
+                // Use custom brand string
+                $data['brand'] = $data['brand_custom'];
+                $data['brand_id'] = null;
+            } else {
+                // No brand selected
+                $data['brand'] = null;
+                $data['brand_id'] = null;
+            }
+            unset($data['brand_custom']); // Remove the custom field
             
             // Convert boolean fields properly (form sends "1" or "0" as strings)
             $data['is_featured'] = isset($data['is_featured']) ? (bool) $data['is_featured'] : false;
@@ -197,7 +215,8 @@ class ProductController extends Controller
     {
         $categories = AgricultureCategory::active()->get();
         $subcategories = AgricultureSubcategory::active()->get();
-        return view('admin.products.edit', compact('product', 'categories', 'subcategories'));
+        $brands = Brand::active()->ordered()->get();
+        return view('admin.products.edit', compact('product', 'categories', 'subcategories', 'brands'));
     }
     
     public function update(Request $request, AgricultureProduct $product)
@@ -225,6 +244,8 @@ class ProductController extends Controller
                 'sku' => 'required|string|unique:agriculture_products,sku,' . $product->id,
                 'stock_quantity' => 'required|integer|min:0',
                 'brand' => 'nullable|string|max:255',
+                'brand_id' => 'nullable|exists:brands,id',
+                'brand_custom' => 'nullable|string|max:255',
                 'model' => 'nullable|string|max:255',
                 'power_source' => 'nullable|string|max:255',
                 'warranty' => 'nullable|string|max:255',
@@ -305,6 +326,26 @@ class ProductController extends Controller
                 $discount = (($data['price'] - $data['dealer_price']) / $data['price']) * 100;
                 $data['dealer_discount_percentage'] = round($discount, 2);
             }
+            
+            // Handle brand: if brand_id is provided, use it; otherwise use custom brand string
+            if (isset($data['brand_id']) && !empty($data['brand_id'])) {
+                $data['brand_id'] = $data['brand_id'];
+                // Clear brand string if brand_id is set
+                $data['brand'] = null;
+            } elseif (isset($data['brand_custom']) && !empty($data['brand_custom'])) {
+                // Use custom brand string
+                $data['brand'] = $data['brand_custom'];
+                $data['brand_id'] = null;
+            } else {
+                // No brand selected - keep existing or set to null
+                if (!isset($data['brand'])) {
+                    $data['brand'] = null;
+                }
+                if (!isset($data['brand_id'])) {
+                    $data['brand_id'] = null;
+                }
+            }
+            unset($data['brand_custom']); // Remove the custom field
             
             // Update the product
             $product->update($data);

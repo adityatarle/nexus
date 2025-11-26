@@ -257,12 +257,31 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="brand" class="form-label">Brand</label>
-                                <input type="text" class="form-control @error('brand') is-invalid @enderror" 
-                                       id="brand" name="brand" value="{{ old('brand', $product->brand) }}">
-                                @error('brand')
+                                <label for="brand_id" class="form-label">Brand</label>
+                                <select class="form-select @error('brand_id') is-invalid @enderror" 
+                                        id="brand_id" name="brand_id">
+                                    <option value="">No Brand</option>
+                                    <option value="custom" {{ (old('brand_custom') || ($product->brand && !$product->brand_id)) ? 'selected' : '' }}>Enter Custom Brand</option>
+                                    @foreach($brands as $brand)
+                                    <option value="{{ $brand->id }}" {{ (old('brand_id', $product->brand_id) == $brand->id) ? 'selected' : '' }}>
+                                        {{ $brand->name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <input type="text" 
+                                       class="form-control mt-2 @error('brand_custom') is-invalid @enderror" 
+                                       id="brand_custom" 
+                                       name="brand_custom" 
+                                       value="{{ old('brand_custom', $product->brand && !$product->brand_id ? $product->brand : '') }}"
+                                       placeholder="Enter custom brand name"
+                                       style="display: {{ (old('brand_custom') || ($product->brand && !$product->brand_id)) ? 'block' : 'none' }};">
+                                @error('brand_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                @error('brand_custom')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Select from existing brands or enter a custom brand name</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -608,9 +627,21 @@ document.getElementById('agriculture_category_id').addEventListener('change', fu
     }
 });
 
-// Trigger on page load if category is already selected
-if (document.getElementById('agriculture_category_id').value) {
-    document.getElementById('agriculture_category_id').dispatchEvent(new Event('change'));
-}
+    // Trigger on page load if category is already selected
+    if (document.getElementById('agriculture_category_id').value) {
+        document.getElementById('agriculture_category_id').dispatchEvent(new Event('change'));
+    }
+
+// Brand selection toggle
+document.getElementById('brand_id').addEventListener('change', function() {
+    const brandCustomInput = document.getElementById('brand_custom');
+    if (this.value === 'custom') {
+        brandCustomInput.style.display = 'block';
+        brandCustomInput.focus();
+    } else {
+        brandCustomInput.style.display = 'none';
+        brandCustomInput.value = '';
+    }
+});
 </script>
 @endpush

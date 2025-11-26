@@ -115,6 +115,15 @@ class ProductStoreRequest extends FormRequest
                 'string',
                 'max:100',
             ],
+            'brand_id' => [
+                'nullable',
+                'exists:brands,id',
+            ],
+            'brand_custom' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
             'model' => [
                 'nullable',
                 'string',
