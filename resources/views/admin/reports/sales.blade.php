@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Sales Report - Nexus Agriculture Admin')
+@section('title', 'Sales Report - Green Leaf Agriculture Admin')
 @section('page-title', 'Sales Report')
 
 @section('content')

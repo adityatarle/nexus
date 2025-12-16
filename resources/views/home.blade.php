@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nexus Agriculture - Empowering Agriculture, Enriching Harvests')
+@section('title', 'Green Leaf Agriculture - Empowering Agriculture, Enriching Harvests')
 @section('description', 'Leading manufacturer of agricultural implements and machinery. High quality, sturdy, long lasting equipment for modern farming.')
 
 @section('content')
@@ -10,9 +10,9 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-12 col-lg-6 text-white mb-4 mb-lg-0">
-                <h1 class="display-4 display-lg-3 fw-bold mb-3 mb-lg-4">NEXUS AGRO IMPLEMENTS & ALLIED INDUSTRY</h1>
-                <p class="lead mb-3 mb-lg-4">Empowering Agriculture, Enriching Harvests</p>
-                <p class="mb-3 mb-lg-4">We are the leading manufacturer of tractor operated agricultural implements & machineries from last 33 years. High quality, sturdy, long lasting and easy to use equipment for modern farming.</p>
+                <h1 class="display-4 display-lg-3 fw-bold mb-3 mb-lg-4">GREEN LEAF AGRO IMPLEMENTS & ALLIED INDUSTRY</h1>
+                <p class="lead mb-3 mb-lg-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+                <p class="mb-3 mb-lg-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
                 <div class="d-flex flex-column flex-sm-row gap-2 gap-sm-3">
                     <button type="button" class="btn btn-light btn-lg px-3 px-md-5" data-bs-toggle="modal" data-bs-target="#quoteModal">
                         Get a Quote
@@ -124,7 +124,7 @@
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                         <div>
                             <p class="mb-0"><strong>For more information contact with us</strong></p>
-                            <p class="mb-0">+91 9960851222</p>
+                            <p class="mb-0">+1 234 567 8900</p>
                         </div>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -143,8 +143,8 @@
         <div class="row align-items-center">
             <div class="col-12 col-lg-6 mb-4 mb-lg-0">
                 <h2 class="h1 display-5 fw-bold mb-3 mb-md-4">ABOUT US</h2>
-                <p class="lead">We Nexus Agro Implements & Allied Industry are the leading manufacturer of tractor operated agricultural implements & machineries (sprayers) from last 33 years under the brand name <strong>Nexus ADITI</strong>.</p>
-                <p>That are high quality, sturdy, long lasting and easy to use for spraying units, blowers, slurry units, weed killing sprayer etc. We have always believed in innovative and progressive research and development, due to which we have been able to design and produce new farming tools, which enable farmers to maximize the productivity of their land.</p>
+                <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
                 <a href="{{ route('about') }}" class="btn btn-primary btn-lg mt-3">Read More...</a>
             </div>
             <div class="col-12 col-lg-6">
@@ -279,12 +279,12 @@
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-0">Mr. Ramesh Boraste</h5>
+                                <h5 class="mb-0">Lorem Ipsum Dolor</h5>
                                 <p class="text-muted mb-0"><strong>(Chairman)</strong></p>
                             </div>
                         </div>
-                        <p class="mb-0"><strong>"Dear Farmer friends"</strong></p>
-                        <p>I am very happy to be presenting this information on website of <strong>Nexus ADITI branded products</strong> to you. We established to manufacture modern and innovative agricultural equipment...</p>
+                        <p class="mb-0"><strong>"Lorem ipsum dolor sit amet"</strong></p>
+                        <p>Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat...</p>
                         <a href="{{ route('about') }}" class="btn btn-sm btn-outline-primary">Read More...</a>
                     </div>
                 </div>
@@ -299,11 +299,11 @@
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-0">Mr. Rishikesh Ramesh Boraste</h5>
+                                <h5 class="mb-0">Sit Amet Consectetur</h5>
                                 <p class="text-muted mb-0"><strong>(Business Development Head)</strong></p>
                             </div>
                         </div>
-                        <p>"We aim to grow as a world class agricultural sprayers, implements & machinery manufacturing unit in upcoming years by serving our customers with the highest quality of product available"</p>
+                        <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."</p>
                         <a href="{{ route('about') }}" class="btn btn-sm btn-outline-primary">Read More...</a>
                     </div>
                 </div>
@@ -372,7 +372,7 @@
 <section class="py-4 py-md-5" style="background: linear-gradient(135deg, #6BB252 0%, #4a8a3a 100%);">
     <div class="container text-white text-center">
         <h2 class="h1 display-5 fw-bold mb-3 mb-md-4">Become A Dealer</h2>
-        <p class="lead mb-3 mb-md-4">Interested in distributing our farming sprayers & equipment's? <strong>Nexus ADITI branded</strong> sprayers & equipment's range is evolving rapidly, offering innovative solutions to farmers to reduce waste, increase operational efficiency, yield of the farm, increase productivity & promote environmental stewardship- all while enhancing profitability.</p>
+        <p class="lead mb-3 mb-md-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         <p class="mb-3 mb-md-4">If you are ready to join our journey, register your interest today. Want to know more? Contact us!</p>
         <a href="{{ route('dealer.register') }}" class="btn btn-light btn-lg px-3 px-md-5">Connect with Us</a>
     </div>
@@ -382,7 +382,7 @@
 <section class="py-4 py-md-5 bg-light">
     <div class="container">
         <div class="text-center mb-4 mb-md-5">
-            <h2 class="h1 display-5 fw-bold mb-2 mb-md-3">Why to choose Nexus ADITI Branded Sprayers & Implements?</h2>
+            <h2 class="h1 display-5 fw-bold mb-2 mb-md-3">Why to choose Green Leaf Branded Sprayers & Implements?</h2>
         </div>
         <div class="row g-3 g-md-4">
             <div class="col-12 col-md-6 col-lg-4">
@@ -400,7 +400,7 @@
                         <svg width="48" height="48" class="text-primary"><use xlink:href="#delivery"></use></svg>
                     </div>
                     <h5>Time & Labour saving</h5>
-                    <p class="text-muted">Nexus ADITI Branded sprayers & other Implements are manufactured to reduce the dependency on labour which also helps to save time & money of the farmer</p>
+                    <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
@@ -454,7 +454,7 @@
                         <svg width="48" height="48" class="text-primary"><use xlink:href="#quality"></use></svg>
                     </div>
                     <h5>FMTIC Tested & Approved</h5>
-                    <p class="text-muted">Our ADITI Branded Quality products are tested from Farm Machinery Testing & Inspection Centre INDIA</p>
+                    <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
@@ -463,7 +463,7 @@
                         <svg width="48" height="48" class="text-primary"><use xlink:href="#savings"></use></svg>
                     </div>
                     <h5>Subsidy Available</h5>
-                    <p class="text-muted">Central government subsidy is available for our products in most of the states of INDIA</p>
+                    <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                 </div>
             </div>
         </div>

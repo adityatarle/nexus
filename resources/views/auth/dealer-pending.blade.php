@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dealer Registration Pending - Nexus Agriculture')
+@section('title', 'Dealer Registration Pending - Green Leaf Agriculture')
 
 @section('content')
 <div class="container py-5">
@@ -142,7 +142,7 @@
                         <p class="mb-2">If you have any questions about your registration, please contact our support team:</p>
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <strong>Email:</strong> dealers@nexusagriculture.com
+                                <strong>Email:</strong> dealers@greenleaf.com
                             </div>
                             <div class="col-md-6">
                                 <strong>Phone:</strong> +1 (555) 123-4567

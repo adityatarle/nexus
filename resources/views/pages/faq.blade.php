@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Frequently Asked Questions - Nexus Agriculture')
+@section('title', 'Frequently Asked Questions - Green Leaf Agriculture')
 
 @section('content')
 <!-- Hero Section -->

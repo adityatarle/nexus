@@ -126,10 +126,10 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="company-name">NEXUS AGRICULTURE</div>
+            <div class="company-name">GREEN LEAF AGRICULTURE</div>
             <div style="font-size: 11px; color: #666;">
                 Agricultural Equipment & Supplies<br>
-                info@nexusagriculture.com | +1 234 567 8900
+                info@greenleaf.com | +1 234 567 8900
             </div>
             <div class="invoice-title">TAX INVOICE</div>
         </div>
@@ -254,7 +254,7 @@
         <!-- Footer -->
         <div class="footer">
             <p><strong>Thank you for your business!</strong></p>
-            <p>For any queries, please contact us at info@nexusagriculture.com or call +1 234 567 8900</p>
+            <p>For any queries, please contact us at info@greenleaf.com or call +1 234 567 8900</p>
             <p style="margin-top: 10px;">This is a computer-generated invoice and does not require a signature.</p>
         </div>
     </div>

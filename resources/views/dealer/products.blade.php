@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dealer Product Catalog - Nexus Agriculture')
+@section('title', 'Dealer Product Catalog - Green Leaf Agriculture')
 
 @section('content')
 <div class="container my-5">

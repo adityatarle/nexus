@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Settings - Nexus Agriculture Admin')
+@section('title', 'Settings - Green Leaf Agriculture Admin')
 @section('page-title', 'Settings')
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Contact Us - Nexus Agriculture')
+@section('title', 'Contact Us - Green Leaf Agriculture')
 
 @section('content')
 <!-- Hero Section -->
@@ -20,7 +20,7 @@
                         </svg>
                         Call Us
                     </a>
-                    <a href="mailto:info@nexusagriculture.com" class="btn btn-outline-primary btn-lg">
+                    <a href="mailto:info@greenleaf.com" class="btn btn-outline-primary btn-lg">
                         <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="me-2">
                             <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825a.5.5 0 0 1-.584 0L5 5.383V13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5.383z"/>
                         </svg>
@@ -146,9 +146,9 @@
                     </div>
                     <h4 class="h5 fw-bold text-dark mb-3">Email Us</h4>
                     <p class="text-muted mb-0">
-                        General: info@nexusagriculture.com<br>
-                        Support: support@nexusagriculture.com<br>
-                        Sales: sales@nexusagriculture.com
+                        General: info@greenleaf.com<br>
+                        Support: support@greenleaf.com<br>
+                        Sales: sales@greenleaf.com
                     </p>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Admin Dashboard - Nexus Agriculture')
+@section('title', 'Admin Dashboard - Green Leaf Agriculture')
 @section('page-title', 'Dashboard Overview')
 
 @push('styles')

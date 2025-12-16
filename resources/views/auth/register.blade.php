@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Register - Nexus Agriculture')
+@section('title', 'Register - Green Leaf Agriculture')
 
 @section('content')
 <div class="container py-5">
@@ -10,7 +10,7 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <h2 class="h3 fw-bold text-dark mb-3">Create Account</h2>
-                        <p class="text-muted">Join Nexus Agriculture today</p>
+                        <p class="text-muted">Join Green Leaf Agriculture today</p>
                     </div>
 
                     @if(session('success'))

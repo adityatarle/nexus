@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Privacy Policy - Nexus Agriculture')
+@section('title', 'Privacy Policy - Green Leaf Agriculture')
 
 @section('content')
 <!-- Hero Section -->
@@ -77,7 +77,7 @@
                             If you have any questions about this Privacy Policy, please contact us at:
                         </p>
                         <div class="bg-light p-4 rounded">
-                            <p class="mb-2"><strong>Email:</strong> privacy@nexusagriculture.com</p>
+                            <p class="mb-2"><strong>Email:</strong> privacy@greenleaf.com</p>
                             <p class="mb-2"><strong>Phone:</strong> +1 (555) 123-4567</p>
                             <p class="mb-0"><strong>Address:</strong> 123 Agriculture Street, Farm City, FC 12345</p>
                         </div>

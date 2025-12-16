@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $category->name . ' Products - Nexus Agriculture')
+@section('title', $category->name . ' Products - Green Leaf Agriculture')
 
 @section('content')
 <!-- Breadcrumb Section -->

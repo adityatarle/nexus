@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Search Results - Nexus Agriculture')
+@section('title', 'Search Results - Green Leaf Agriculture')
 
 @section('content')
 <!-- Breadcrumb Section -->

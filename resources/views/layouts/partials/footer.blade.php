@@ -5,7 +5,7 @@
           <!-- Company Info & Social Links -->
           <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
             <div class="footer-widget">
-              <h5 class="text-white mb-3 fw-bold">Nexus Agro Implements</h5>
+              <h5 class="text-white mb-3 fw-bold">Green Leaf Agro Implements</h5>
               <p class="text-light mb-3" style="color: #e0e0e0 !important;">Empowering Agriculture, Enriching Harvests</p>
               <p class="text-light small mb-3" style="color: #d0d0d0 !important;">Leading manufacturer of tractor operated agricultural implements & machineries with 33+ years of experience.</p>
               <div class="social-links">
@@ -152,9 +152,9 @@
               <div class="mb-3">
                 <h6 class="text-white small fw-bold mb-2">Head Office</h6>
                 <p class="text-light small mb-0" style="color: #d0d0d0 !important; line-height: 1.6;">
-                  B-187, Shree Samartha Co-op. Industrial Estate Ltd.,<br>
-                  Mukhed Road, Pimpalgaon (Basavant),<br>
-                  Tal - Niphad, Nashik, Maharashtra - 422 209, India
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit,<br>
+                  sed do eiusmod tempor incididunt ut labore,<br>
+                  Green Leaf City, State - 12345, Country
                 </p>
               </div>
 
@@ -162,27 +162,27 @@
                 <h6 class="text-white small fw-bold mb-2">Get In Touch</h6>
                 <ul class="list-unstyled mb-0">
                   <li class="mb-2">
-                    <a href="mailto:info@nexusagro.com" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;">
+                    <a href="mailto:info@greenleaf.com" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;">
                       <svg width="16" height="16" class="me-2" style="color: #6BB252;"><use xlink:href="#user"></use></svg>
-                      <span>info@nexusagro.com</span>
+                      <span>info@greenleaf.com</span>
                     </a>
                   </li>
                   <li class="mb-2">
-                    <a href="mailto:sales@nexusagro.com" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;">
+                    <a href="mailto:sales@greenleaf.com" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;">
                       <svg width="16" height="16" class="me-2" style="color: #6BB252;"><use xlink:href="#user"></use></svg>
-                      <span>sales@nexusagro.com</span>
+                      <span>sales@greenleaf.com</span>
                     </a>
                   </li>
                   <li class="mb-2">
-                    <a href="tel:+919960851222" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;">
+                    <a href="tel:+12345678900" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;">
                       <svg width="16" height="16" class="me-2" style="color: #6BB252;"><use xlink:href="#user"></use></svg>
-                      <span>+91 9960851222</span>
+                      <span>+1 234 567 8900</span>
                     </a>
                   </li>
                   <li>
-                    <a href="https://wa.me/919960851222" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;" target="_blank">
+                    <a href="https://wa.me/12345678900" class="text-light text-decoration-none small d-flex align-items-center" style="color: #e0e0e0 !important;" target="_blank">
                       <svg width="16" height="16" class="me-2" style="color: #6BB252;"><use xlink:href="#link"></use></svg>
-                      <span>WhatsApp: +91 9960851222</span>
+                      <span>WhatsApp: +1 234 567 8900</span>
                     </a>
                   </li>
                 </ul>
@@ -199,7 +199,7 @@
           <div class="row align-items-center">
             <div class="col-md-6 mb-2 mb-md-0">
               <p class="text-light small mb-0" style="color: #d0d0d0 !important;">
-                Copyright © {{ date('Y') }} <strong class="text-white">Nexus Agro Implements</strong>. All Rights Reserved.
+                Copyright © {{ date('Y') }} <strong class="text-white">Green Leaf Agro Implements</strong>. All Rights Reserved.
               </p>
             </div>
             <div class="col-md-6 text-md-end">

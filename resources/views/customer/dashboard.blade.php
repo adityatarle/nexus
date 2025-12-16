@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'My Dashboard - Nexus Agriculture')
+@section('title', 'My Dashboard - Green Leaf Agriculture')
 
 @section('content')
 <div class="container my-5">

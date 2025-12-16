@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dealer Dashboard - Nexus Agriculture')
+@section('title', 'Dealer Dashboard - Green Leaf Agriculture')
 
 @section('content')
 <div class="container py-5">

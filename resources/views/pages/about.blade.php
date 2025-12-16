@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'About Us - Nexus Agriculture')
+@section('title', 'About Us - Green Leaf Agriculture')
 
 @section('content')
 <!-- Hero Section -->
@@ -8,10 +8,10 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold text-dark mb-4">About Nexus Agriculture</h1>
+                <h1 class="display-4 fw-bold text-dark mb-4">About Green Leaf Agriculture</h1>
                 <p class="lead text-muted mb-4">
-                    We are passionate about bringing you the freshest, highest-quality agricultural products 
-                    directly from local farms to your table.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt 
+                    ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
                 </p>
                 <div class="d-flex gap-3">
                     <a href="{{ route('agriculture.products.index') }}" class="btn btn-primary btn-lg">Shop Now</a>
@@ -90,14 +90,14 @@
             <div class="col-lg-6">
                 <h2 class="h3 fw-bold text-dark mb-4">Our Story</h2>
                 <p class="text-muted mb-4">
-                    Founded in 2020, Nexus Agriculture began as a small initiative to connect local farmers 
-                    with consumers who value fresh, organic produce. What started as a weekend farmers market 
-                    has grown into a comprehensive platform serving thousands of customers.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt 
+                    ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco 
+                    laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
                 <p class="text-muted mb-4">
-                    Our journey has been driven by a simple belief: everyone deserves access to fresh, 
-                    nutritious food that's grown with care and respect for the environment. We work directly 
-                    with farmers to ensure fair prices and sustainable practices.
+                    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla 
+                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+                    mollit anim id est laborum.
                 </p>
                 <div class="row g-3">
                     <div class="col-6">

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Terms of Service - Nexus Agriculture')
+@section('title', 'Terms of Service - Green Leaf Agriculture')
 
 @section('content')
 <!-- Hero Section -->
@@ -36,7 +36,7 @@
                         
                         <h2 class="h4 fw-bold text-dark mb-4">Use License</h2>
                         <p class="text-muted mb-4">
-                            Permission is granted to temporarily download one copy of the materials on Nexus Agriculture's website for personal, 
+                            Permission is granted to temporarily download one copy of the materials on Green Leaf Agriculture's website for personal, 
                             non-commercial transitory viewing only. This is the grant of a license, not a transfer of title.
                         </p>
                         
@@ -66,8 +66,8 @@
                         
                         <h2 class="h4 fw-bold text-dark mb-4">Limitation of Liability</h2>
                         <p class="text-muted mb-4">
-                            In no event shall Nexus Agriculture or its suppliers be liable for any damages arising out of the use or inability to use 
-                            the materials on this website, even if Nexus Agriculture or an authorized representative has been notified.
+                            In no event shall Green Leaf Agriculture or its suppliers be liable for any damages arising out of the use or inability to use 
+                            the materials on this website, even if Green Leaf Agriculture or an authorized representative has been notified.
                         </p>
                         
                         <h2 class="h4 fw-bold text-dark mb-4">Governing Law</h2>
@@ -78,7 +78,7 @@
                         
                         <h2 class="h4 fw-bold text-dark mb-4">Changes to Terms</h2>
                         <p class="text-muted mb-4">
-                            Nexus Agriculture reserves the right to revise these terms at any time without notice. By using this website, 
+                            Green Leaf Agriculture reserves the right to revise these terms at any time without notice. By using this website, 
                             you are agreeing to be bound by the then current version of these terms.
                         </p>
                         
@@ -87,7 +87,7 @@
                             If you have any questions about these Terms of Service, please contact us at:
                         </p>
                         <div class="bg-light p-4 rounded">
-                            <p class="mb-2"><strong>Email:</strong> legal@nexusagriculture.com</p>
+                            <p class="mb-2"><strong>Email:</strong> legal@greenleaf.com</p>
                             <p class="mb-2"><strong>Phone:</strong> +1 (555) 123-4567</p>
                             <p class="mb-0"><strong>Address:</strong> 123 Agriculture Street, Farm City, FC 12345</p>
                         </div>

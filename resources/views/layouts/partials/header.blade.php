@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{ $siteSettings['site_name'] ?? 'Nexus Agriculture' }}</title>
+    <title>{{ $siteSettings['site_name'] ?? 'Green Leaf Agriculture' }}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -314,8 +314,8 @@
           <div class="row align-items-center">
             <div class="col-md-6">
               <div class="d-flex align-items-center gap-3 text-muted small">
-                <span><strong>Email:</strong> info@nexusagro.com</span>
-                <span><strong>Phone:</strong> +91 9960851222</span>
+                <span><strong>Email:</strong> info@greenleaf.com</span>
+                <span><strong>Phone:</strong> +1 234 567 8900</span>
               </div>
             </div>
             <div class="col-md-6 text-end">
@@ -345,11 +345,11 @@
             <div class="d-flex align-items-center">
               <a href="{{ route('home') }}" class="d-flex align-items-center text-decoration-none">
                 @if(!empty($siteSettings['site_logo']))
-                  <img src="{{ asset('storage/' . $siteSettings['site_logo']) }}" alt="Nexus Agro" style="max-height: 60px; width: auto;">
+                  <img src="{{ asset('storage/' . $siteSettings['site_logo']) }}" alt="Green Leaf Agro" style="max-height: 60px; width: auto;">
                 @else
                   <div class="d-flex align-items-center">
                     <svg width="40" height="40" class="text-success me-2"><use xlink:href="#organic"></use></svg>
-                    <span class="fw-bold text-dark fs-5">Nexus Agro</span>
+                    <span class="fw-bold text-dark fs-5">Green Leaf Agro</span>
                   </div>
                 @endif
               </a>
