@@ -69,10 +69,10 @@
                                     </h4>
                                     <div class="product-price">
                                         @if($product->sale_price)
-                                            <span class="current-price">${{ number_format($product->sale_price, 2) }}</span>
-                                            <span class="old-price">${{ number_format($product->price, 2) }}</span>
+                                            <span class="current-price">₹{{ number_format($product->sale_price, 2) }}</span>
+                                            <span class="old-price">₹{{ number_format($product->price, 2) }}</span>
                                         @else
-                                            <span class="current-price">${{ number_format($product->price, 2) }}</span>
+                                            <span class="current-price">₹{{ number_format($product->price, 2) }}</span>
                                         @endif
                                     </div>
                                     <div class="product-actions">

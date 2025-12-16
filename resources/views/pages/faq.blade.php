@@ -63,7 +63,7 @@
                         </h2>
                         <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                We offer same-day delivery for local orders (within 20 miles) and standard shipping for out-of-town customers. Delivery fees vary based on location and order size. Free delivery is available for orders over $100 within our local delivery area.
+                                We offer same-day delivery for local orders (within 20 miles) and standard shipping for out-of-town customers. Delivery fees vary based on location and order size. Free delivery is available for orders over ₹5,000 within our local delivery area.
                             </div>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
                         </h2>
                         <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Yes! We offer volume discounts for bulk orders. Discounts start at 10% for orders over $500 and can go up to 25% for orders over $2000. Contact our sales team for custom pricing on large orders.
+                                Yes! We offer volume discounts for bulk orders. Discounts start at 10% for orders over ₹25,000 and can go up to 25% for orders over ₹1,00,000. Contact our sales team for custom pricing on large orders.
                             </div>
                         </div>
                     </div>

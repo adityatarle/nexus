@@ -65,7 +65,7 @@
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                         </svg>
                     </div>
-                    <h3 class="h4 fw-bold text-success mb-1">${{ number_format($stats['total_spent'], 2) }}</h3>
+                    <h3 class="h4 fw-bold text-success mb-1">₹{{ number_format($stats['total_spent'], 2) }}</h3>
                     <p class="text-muted mb-0">Total Spent</p>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                                                 <span class="badge bg-light text-dark">{{ $order->items->count() }} items</span>
                                             </td>
                                             <td>
-                                                <span class="fw-bold text-success">${{ number_format($order->total_amount, 2) }}</span>
+                                                <span class="fw-bold text-success">₹{{ number_format($order->total_amount, 2) }}</span>
                                             </td>
                                             <td>
                                                 <span class="badge bg-{{ $order->order_status === 'pending' ? 'warning' : ($order->order_status === 'completed' ? 'success' : 'info') }}">

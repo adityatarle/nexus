@@ -68,6 +68,65 @@
             border-radius: 5px;
         }
         
+        /* Navigation bar styling */
+        header {
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link {
+            color: #333 !important;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover,
+        .nav-item.active .nav-link {
+            color: #6BB252 !important;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .dropdown-item:hover {
+            background: #6BB252;
+            color: #fff;
+        }
+        
+        /* Header improvements */
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            border-radius: 5px;
+        }
+        
+        .search-bar {
+            border: 1px solid #e0e0e0;
+        }
+        
+        .search-bar:focus-within {
+            border-color: #6BB252;
+            box-shadow: 0 0 0 0.2rem rgba(107, 178, 82, 0.25);
+        }
+        
+        /* Responsive header */
+        @media (max-width: 767.98px) {
+            header .container > .row {
+                padding: 0.75rem 0;
+            }
+            
+            .search-bar {
+                margin-top: 0.5rem;
+            }
+        }
+        
         /* Hero section */
         .hero-section {
             background: linear-gradient(135deg, #6BB252 0%, #4a8a3a 100%);
@@ -320,7 +379,7 @@
                                         <h6 class="my-0">{{ $product->name }}</h6>
                                         <small class="text-muted">Qty: {{ $item['quantity'] }}</small>
                                     </div>
-                                    <span class="text-muted">${{ number_format($item['price'] * $item['quantity'], 2) }}</span>
+                                    <span class="text-muted">₹{{ number_format($item['price'] * $item['quantity'], 2) }}</span>
                                 </div>
                             @endif
                         @endforeach
@@ -331,7 +390,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
-                            <span>Total (USD)</span>
+                            <span>Total</span>
                             <strong id="cart-total">
                                 @php
                                     $cartTotal = 0;
@@ -341,7 +400,7 @@
                                         }
                                     }
                                 @endphp
-                                ${{ number_format($cartTotal, 2) }}
+                                ₹{{ number_format($cartTotal, 2) }}
                             </strong>
                         </div>
                         <a href="{{ route('agriculture.cart.index') }}" class="btn btn-primary w-100 mt-3">View Cart</a>
@@ -473,6 +532,50 @@
     </script>
 
     @stack('scripts')
+    
+    <script>
+        // Fix navigation links and dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all Bootstrap dropdowns
+            const dropdownElementList = document.querySelectorAll('.dropdown-toggle');
+            dropdownElementList.forEach(function(dropdownToggleEl) {
+                new bootstrap.Dropdown(dropdownToggleEl);
+            });
+            
+            // Ensure all navigation links work
+            const navLinks = document.querySelectorAll('.navbar-nav a.nav-link:not(.dropdown-toggle)');
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    // Allow normal navigation
+                    if (this.getAttribute('href') && this.getAttribute('href') !== '#') {
+                        window.location.href = this.getAttribute('href');
+                    }
+                });
+            });
+            
+            // Handle dropdown items
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // Close dropdown and navigate
+                        const dropdown = this.closest('.dropdown');
+                        if (dropdown) {
+                            const toggle = dropdown.querySelector('.dropdown-toggle');
+                            if (toggle) {
+                                const bsDropdown = bootstrap.Dropdown.getInstance(toggle);
+                                if (bsDropdown) {
+                                    bsDropdown.hide();
+                                }
+                            }
+                        }
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 

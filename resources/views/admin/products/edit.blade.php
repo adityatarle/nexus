@@ -407,9 +407,9 @@
                 <div class="mb-3">
                     <small class="text-muted d-block">Pricing</small>
                     <div>
-                        <strong>${{ number_format($product->current_price, 2) }}</strong>
+                        <strong>₹{{ number_format($product->current_price, 2) }}</strong>
                         @if($product->sale_price)
-                        <br><small class="text-muted">Regular: ${{ number_format($product->price, 2) }}</small>
+                        <br><small class="text-muted">Regular: ₹{{ number_format($product->price, 2) }}</small>
                         @endif
                     </div>
                 </div>

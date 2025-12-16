@@ -66,9 +66,9 @@
                                 
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <span class="h5 fw-bold text-primary mb-0">${{ number_format($product->price, 2) }}</span>
+                                        <span class="h5 fw-bold text-primary mb-0">₹{{ number_format($product->price, 2) }}</span>
                                         @if($product->original_price && $product->original_price > $product->price)
-                                            <small class="text-muted text-decoration-line-through ms-2">${{ number_format($product->original_price, 2) }}</small>
+                                            <small class="text-muted text-decoration-line-through ms-2">₹{{ number_format($product->original_price, 2) }}</small>
                                         @endif
                                     </div>
                                     <small class="text-muted">{{ $product->stock_quantity }} in stock</small>

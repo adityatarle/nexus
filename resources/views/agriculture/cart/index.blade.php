@@ -40,7 +40,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <span class="fw-bold">${{ number_format($item['subtotal'], 2) }}</span>
+                                    <span class="fw-bold">₹{{ number_format($item['subtotal'], 2) }}</span>
                                 </div>
                                 <div class="col-md-2">
                                     <form action="{{ route('agriculture.cart.remove') }}" method="POST" class="d-inline">
@@ -78,7 +78,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span>${{ number_format($total, 2) }}</span>
+                                <span>₹{{ number_format($total, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Shipping:</span>
@@ -91,7 +91,7 @@
                             <hr>
                             <div class="d-flex justify-content-between mb-3">
                                 <strong>Total:</strong>
-                                <strong>${{ number_format($total, 2) }}</strong>
+                                <strong>₹{{ number_format($total, 2) }}</strong>
                             </div>
                             
                             <a href="{{ route('agriculture.checkout.index') }}" class="btn btn-primary btn-lg w-100">Proceed to Checkout</a>

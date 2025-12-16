@@ -307,109 +307,156 @@
 
     </div>
 
-    <header>
-      <div class="container-fluid">
-        <div class="row py-3 border-bottom align-items-center">
+    <header class="bg-white shadow-sm sticky-top" style="z-index: 1000;">
+      <!-- Top Bar -->
+      <div class="bg-light border-bottom py-2 d-none d-md-block">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <div class="d-flex align-items-center gap-3 text-muted small">
+                <span><strong>Email:</strong> info@nexusagro.com</span>
+                <span><strong>Phone:</strong> +91 9960851222</span>
+              </div>
+            </div>
+            <div class="col-md-6 text-end">
+              <div class="d-flex align-items-center justify-content-end gap-3">
+                @auth
+                  <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : (auth()->user()->isDealer() ? route('dealer.dashboard') : route('customer.profile')) }}" class="text-muted text-decoration-none small">
+                    <svg width="16" height="16" class="me-1"><use xlink:href="#user"></use></svg>
+                    {{ auth()->user()->name }}
+                  </a>
+                @else
+                  <a href="{{ route('auth.login') }}" class="text-muted text-decoration-none small">Sign in</a>
+                  <span class="text-muted">|</span>
+                  <a href="{{ route('auth.register') }}" class="text-muted text-decoration-none small">Registration</a>
+                @endauth
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Header -->
+      <div class="container">
+        <div class="row align-items-center py-3">
           
           <!-- Logo Section -->
-          <div class="col-sm-6 col-md-3 col-lg-2">
-            <div class="d-flex align-items-center gap-3">
-              <a href="{{ route('agriculture.home') }}" class="d-flex align-items-center">
+          <div class="col-6 col-md-3 col-lg-2">
+            <div class="d-flex align-items-center">
+              <a href="{{ route('home') }}" class="d-flex align-items-center text-decoration-none">
                 @if(!empty($siteSettings['site_logo']))
-                  <img src="{{ asset('storage/' . $siteSettings['site_logo']) }}" alt="logo" style="max-height: 50px;">
+                  <img src="{{ asset('storage/' . $siteSettings['site_logo']) }}" alt="Nexus Agro" style="max-height: 60px; width: auto;">
                 @else
-                  <img src="{{ asset('assets/organic/images/logo.svg') }}" alt="logo" style="max-height: 50px;">
+                  <div class="d-flex align-items-center">
+                    <svg width="40" height="40" class="text-success me-2"><use xlink:href="#organic"></use></svg>
+                    <span class="fw-bold text-dark fs-5">Nexus Agro</span>
+                  </div>
                 @endif
               </a>
-              <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-                aria-controls="offcanvasNavbar">
-                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#menu"></use></svg>
+              <button class="navbar-toggler d-lg-none border-0 ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                <svg width="28" height="28" viewBox="0 0 24 24"><use xlink:href="#menu"></use></svg>
               </button>
             </div>
           </div>
           
           <!-- Search Bar Section -->
-          <div class="col-md-6 col-lg-5 d-none d-md-block">
-            <div class="search-bar bg-light p-2 rounded-4 d-flex align-items-center">
-              <select class="form-select border-0 bg-transparent d-none d-xl-block me-2" style="max-width: 150px;">
+          <div class="col-12 col-md-6 col-lg-5 order-3 order-md-2 mt-3 mt-md-0">
+            <div class="search-bar bg-light p-2 rounded d-flex align-items-center">
+              <select class="form-select border-0 bg-transparent d-none d-xl-block me-2" style="max-width: 150px; font-size: 0.875rem;">
                 <option>All Categories</option>
-                <option>Equipment</option>
-                <option>Seeds</option>
-                <option>Tools</option>
+                @foreach(\App\Models\AgricultureCategory::active()->take(5)->get() as $cat)
+                  <option value="{{ $cat->slug }}">{{ $cat->name }}</option>
+                @endforeach
               </select>
-              <form id="search-form" class="flex-grow-1 d-flex" action="{{ route('agriculture.products.search') }}" method="GET">
-                <input type="text" name="q" class="form-control border-0 bg-transparent" placeholder="Search products..." value="{{ request('q') }}">
-                <button type="submit" class="btn btn-link p-0 ms-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/></svg>
+              <form id="search-form" class="flex-grow-1 d-flex align-items-center" action="{{ route('agriculture.products.search') }}" method="GET">
+                <input type="text" name="q" class="form-control border-0 bg-transparent" placeholder="Search products..." value="{{ request('q') }}" style="font-size: 0.875rem;">
+                <button type="submit" class="btn btn-link p-0 ms-2 text-dark" style="min-width: 32px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/></svg>
                 </button>
               </form>
             </div>
           </div>
 
-          <!-- Navigation Links Section -->
-          <div class="col-lg-3 d-none d-lg-flex justify-content-center">
-            <ul class="navbar-nav list-unstyled d-flex flex-row gap-3 align-items-center mb-0 fw-semibold text-dark">
-              <li class="nav-item {{ request()->routeIs('agriculture.home') ? 'active' : '' }}">
-                <a href="{{ route('agriculture.home') }}" class="nav-link px-2">Home</a>
-              </li>
-              <li class="nav-item {{ request()->routeIs('agriculture.products.*') ? 'active' : '' }}">
-                <a href="{{ route('agriculture.products.index') }}" class="nav-link px-2">Shop</a>
-              </li>
-              <li class="nav-item {{ request()->routeIs('agriculture.categories.*') ? 'active' : '' }}">
-                <a href="{{ route('agriculture.categories.index') }}" class="nav-link px-2">Categories</a>
-              </li>
-              <li class="nav-item {{ request()->routeIs('about') ? 'active' : '' }}">
-                <a href="{{ route('about') }}" class="nav-link px-2">About</a>
-              </li>
-              <li class="nav-item {{ request()->routeIs('contact') ? 'active' : '' }}">
-                <a href="{{ route('contact') }}" class="nav-link px-2">Contact</a>
-              </li>
-            </ul>
-          </div>
-          
           <!-- Action Icons Section -->
-          <div class="col-sm-6 col-md-3 col-lg-2 d-flex align-items-center justify-content-end">
-            <ul class="d-flex align-items-center list-unstyled m-0 gap-2">
+          <div class="col-6 col-md-3 col-lg-2 order-2 order-md-3 d-flex align-items-center justify-content-end">
+            <ul class="d-flex align-items-center list-unstyled m-0 gap-2 gap-md-3">
               <li>
                 @auth
                   @if(auth()->user()->isAdmin())
-                    <a href="{{ route('admin.dashboard') }}" class="p-2" title="Admin Dashboard">
-                      <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                    <a href="{{ route('admin.dashboard') }}" class="p-2 text-dark" title="Admin Dashboard">
+                      <svg width="22" height="22"><use xlink:href="#user"></use></svg>
                     </a>
                   @elseif(auth()->user()->isDealer())
-                    <a href="{{ route('dealer.dashboard') }}" class="p-2" title="Dealer Dashboard">
-                      <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                    <a href="{{ route('dealer.dashboard') }}" class="p-2 text-dark" title="Dealer Dashboard">
+                      <svg width="22" height="22"><use xlink:href="#user"></use></svg>
                     </a>
                   @else
-                    <a href="{{ route('customer.profile') }}" class="p-2" title="My Profile">
-                      <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                    <a href="{{ route('customer.profile') }}" class="p-2 text-dark" title="My Profile">
+                      <svg width="22" height="22"><use xlink:href="#user"></use></svg>
                     </a>
                   @endif
                 @else
-                  <a href="{{ route('auth.login') }}" class="p-2" title="Login">
-                    <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                  <a href="{{ route('auth.login') }}" class="p-2 text-dark" title="Login">
+                    <svg width="22" height="22"><use xlink:href="#user"></use></svg>
                   </a>
                 @endauth
               </li>
               <li class="position-relative">
-                <a href="{{ auth()->check() ? route('agriculture.wishlist.index') : route('auth.login') }}" class="p-2">
-                  <svg width="24" height="24"><use xlink:href="#wishlist"></use></svg>
+                <a href="{{ auth()->check() ? route('agriculture.wishlist.index') : route('auth.login') }}" class="p-2 text-dark" title="Wishlist">
+                  <svg width="22" height="22"><use xlink:href="#wishlist"></use></svg>
                   @if(($wishlistCount ?? 0) > 0)
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">{{ $wishlistCount }}</span>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; padding: 2px 5px;">{{ $wishlistCount }}</span>
                   @endif
                 </a>
               </li>
               <li class="position-relative">
-                <a href="#" class="p-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
-                  <svg width="24" height="24"><use xlink:href="#shopping-bag"></use></svg>
+                <a href="#" class="p-2 text-dark" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart" title="Cart">
+                  <svg width="22" height="22"><use xlink:href="#shopping-bag"></use></svg>
                   @if(($cartCount ?? 0) > 0)
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.7rem;">{{ $cartCount }}</span>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.65rem; padding: 2px 5px;">{{ $cartCount }}</span>
                   @endif
                 </a>
               </li>
             </ul>
           </div>
 
+        </div>
+      </div>
+
+      <!-- Navigation Bar -->
+      <div class="bg-primary border-top">
+        <div class="container">
+          <nav class="navbar navbar-expand-lg navbar-dark">
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav mx-auto d-flex flex-row gap-1 gap-lg-3 align-items-center">
+                <li class="nav-item">
+                  <a class="nav-link px-3 py-2 {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link px-3 py-2 dropdown-toggle {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    About Us
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                    <li><a class="dropdown-item" href="{{ route('about') }}">Company Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ route('about') }}#chairman">Chairman's Message</a></li>
+                    <li><a class="dropdown-item" href="{{ route('about') }}#awards">Awards & Recognitions</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link px-3 py-2 {{ request()->routeIs('agriculture.products.*') || request()->routeIs('agriculture.categories.*') ? 'active' : '' }}" href="{{ route('agriculture.products.index') }}">Products</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link px-3 py-2 {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}">Contact Us</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link px-3 py-2" href="{{ auth()->check() ? route('dealer.registration') : route('auth.register') }}">Become A Dealer</a>
+                </li>
+              </ul>
+            </div>
+          </nav>
         </div>
       </div>
     </header>

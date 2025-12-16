@@ -117,9 +117,9 @@
                             <a href="{{ route('agriculture.products.show', $product) }}">{{ $product->name }}</a>
                         </h5>
                         <div class="product-price">
-                            <span class="current-price">${{ number_format($product->current_price, 2) }}</span>
+                            <span class="current-price">₹{{ number_format($product->current_price, 2) }}</span>
                             @if($product->sale_price)
-                            <span class="old-price">${{ number_format($product->price, 2) }}</span>
+                            <span class="old-price">₹{{ number_format($product->price, 2) }}</span>
                             @endif
                         </div>
                         <div class="product-specs">

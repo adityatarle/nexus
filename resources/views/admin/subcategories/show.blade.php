@@ -82,7 +82,7 @@
                                     </div>
                                 </td>
                                 <td>{{ $product->sku }}</td>
-                                <td>${{ number_format($product->current_price, 2) }}</td>
+                                <td>₹{{ number_format($product->current_price, 2) }}</td>
                                 <td>
                                     <span class="badge bg-{{ $product->stock_quantity < 10 ? 'warning' : 'success' }}">
                                         {{ $product->stock_quantity }}

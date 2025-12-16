@@ -129,17 +129,17 @@
                                 @if($user && $user->canAccessDealerPricing() && $product->dealer_price)
                                     <!-- Dealer Pricing -->
                                     <div class="dealer-pricing">
-                                        <span class="current-price text-success fw-bold">${{ number_format($product->getPriceForUser($user), 2) }}</span>
+                                        <span class="current-price text-success fw-bold">₹{{ number_format($product->getPriceForUser($user), 2) }}</span>
                                         <small class="text-success d-block">Dealer Price</small>
                                         @if($product->dealer_price < $product->price)
-                                            <small class="text-muted">Retail: ${{ number_format($product->price, 2) }}</small>
+                                            <small class="text-muted">Retail: ₹{{ number_format($product->price, 2) }}</small>
                                         @endif
                                     </div>
                                 @else
                                     <!-- Retail Pricing -->
-                                    <span class="current-price">${{ number_format($product->current_price, 2) }}</span>
+                                    <span class="current-price">₹{{ number_format($product->current_price, 2) }}</span>
                                     @if($product->sale_price)
-                                        <span class="old-price">${{ number_format($product->price, 2) }}</span>
+                                        <span class="old-price">₹{{ number_format($product->price, 2) }}</span>
                                     @endif
                                     @if($product->dealer_price)
                                         <small class="text-muted d-block">Dealer pricing available</small>
